@@ -10,18 +10,12 @@ namespace MyExcelFunctions
 {
     public static class MyFunctions
     {
-        [ExcelFunction(Category="My functions",Description = "My first .NET function")]
-        public static string SayHello(string name)
-        {
-            return "Hello 2 " + name;
-        }
-
-        [ExcelFunction(Category="My functions",Description = "Returns the directory information for the specified path string.")]
-        public static object GETDIRECTORYNAME(string name)
+        [ExcelFunction(Category="My functions",Description = "Returns the directory information for the specified path string")]
+        public static object GETDIRECTORYNAME([ExcelArgument("path", Name = "path", Description = "The path of a file or directory")] string path)
         {
             try
             {
-                return Path.GetDirectoryName(name);
+                return Path.GetDirectoryName(path);
             }
             catch
             {
@@ -30,11 +24,11 @@ namespace MyExcelFunctions
         }
 
         [ExcelFunction(Category="My functions",Description = "Returns the directory name for the specified path string.")]
-        public static object GETDIRECTORY(string name)
+        public static object GETDIRECTORY([ExcelArgument("path", Name = "path", Description = "The path of a file or directory")] string path)
         {
             try
             {
-                return Path.GetFileName(Path.GetDirectoryName(name));
+                return Path.GetFileName(Path.GetDirectoryName(path));
             }
             catch
             {
@@ -43,11 +37,11 @@ namespace MyExcelFunctions
         }
 
         [ExcelFunction(Category="My functions",Description = "Returns the file name and extension of the specified path string.")]
-        public static object GETFILENAME(string name)
+        public static object GETFILENAME([ExcelArgument("path", Name = "path", Description = "The path string from which to obtain the file name and extension")] string path)
         {
             try
             {
-                return Path.GetFileName(name);
+                return Path.GetFileName(path);
             }
             catch
             {
@@ -56,11 +50,11 @@ namespace MyExcelFunctions
         }
 
         [ExcelFunction(Category="My functions",Description = "Returns the file name of the specified path string without the extension.")]
-        public static object GETFILENAMEWTEXT(string name)
+        public static object GETFILENAMEWTEXT([ExcelArgument("path", Name = "path", Description = "The path of the file")] string path)
         {
             try
             {
-                return Path.GetFileNameWithoutExtension(name);
+                return Path.GetFileNameWithoutExtension(path);
             }
             catch
             {
@@ -68,11 +62,11 @@ namespace MyExcelFunctions
             }
         }
 
-        [ExcelFunction(Category="My functions",Description = "Split a string and return the Nth item in the resulting array.")]
+        [ExcelFunction(Category="My functions",Description = "Split a string and return the Nth item in the resulting array",HelpTopic = "Split a string and return the Nth item in the resulting array")]
         public static object SPLITSTRING(
-            [ExcelArgument(Name = "string")] string name,
-            [ExcelArgument(Name = "A string that delimit the substring")] string value,
-            [ExcelArgument(Name = "The rank of the resulting substring")] int rank)
+            [ExcelArgument("string", Name = "string", Description ="The input string")] string name,
+            [ExcelArgument("separator", Name = "separator", Description = "A string that delimits the substrings in this string")] string value,
+            [ExcelArgument("rank", Name = "rank", Description = "The rank of the resulting substring")] int rank)
         {
             try
             {
