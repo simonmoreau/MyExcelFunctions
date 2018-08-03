@@ -63,6 +63,19 @@ namespace MyExcelFunctions
             }
         }
 
+        [ExcelFunction(Category = "My functions", Description = "Returns the extension of the specified path string.")]
+        public static object GETEXTENSION([ExcelArgument("path", Name = "path", Description = "The path string from which to get the extension.")] string path)
+        {
+            try
+            {
+                return Path.GetExtension(path);
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
         [ExcelFunction(Category = "My functions", Description = "Split a string and return the Nth item in the resulting array", HelpTopic = "Split a string and return the Nth item in the resulting array")]
         public static object SPLITSTRING(
             [ExcelArgument("string", Name = "string", Description = "The input string")] string name,
@@ -88,6 +101,7 @@ namespace MyExcelFunctions
             try
             {
                 Match match = new Regex(pattern).Match(input);
+                
                 if (match.Success)
                 {
                     return match.Value;
@@ -96,6 +110,20 @@ namespace MyExcelFunctions
                 {
                     return ExcelDna.Integration.ExcelError.ExcelErrorNA;
                 }
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "My functions", Description = "Converts the string representation of a date and time to its System.DateTime equivalent.", HelpTopic = "Converts the string representation of a date and time to its System.DateTime equivalent.")]
+        public static object PARSEDATE(
+            [ExcelArgument("input", Name = "input", Description = "A string that contains a date and time to convert.")] string input)
+        {
+            try
+            {
+                return DateTime.Parse(input);
             }
             catch
             {
