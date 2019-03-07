@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using ExcelDna.Integration;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Globalization;
+using Excel = Microsoft.Office.Interop.Excel;
+using System.Reflection;
 
 namespace MyExcelFunctions
 {
@@ -101,7 +104,7 @@ namespace MyExcelFunctions
             try
             {
                 Match match = new Regex(pattern).Match(input);
-                
+
                 if (match.Success)
                 {
                     return match.Value;
@@ -119,11 +122,20 @@ namespace MyExcelFunctions
 
         [ExcelFunction(Category = "My functions", Description = "Converts the string representation of a date and time to its System.DateTime equivalent.", HelpTopic = "Converts the string representation of a date and time to its System.DateTime equivalent.")]
         public static object PARSEDATE(
-            [ExcelArgument("input", Name = "input", Description = "A string that contains a date and time to convert.")] string input)
+            [ExcelArgument("input", Name = "input", Description = "A string that contains a date and time to convert.")] string input,
+            [ExcelArgument("format", Name = "format", Description = "[optional]A format specifier that defines the required format of input.")] string format)
         {
             try
             {
-                return DateTime.Parse(input);
+                if (format == "")
+                {
+                    return DateTime.Parse(input);
+                }
+                else
+                {
+                    CultureInfo provider = CultureInfo.InvariantCulture;
+                    return DateTime.ParseExact(input, format, provider, DateTimeStyles.None);
+                }
             }
             catch
             {
@@ -131,6 +143,109 @@ namespace MyExcelFunctions
             }
         }
 
+        [ExcelFunction(Category = "My functions", Description = "Insert a picture.", HelpTopic = "Insert a picture.")]
+        public static object INSERTPICTURE(
+    [ExcelArgument("path", Name = "path", Description = "A path to the picture.")] string path,
+    [ExcelArgument("width", Name = "width", Description = "[optional] The width of the picture.")] string width,
+    [ExcelArgument("height", Name = "height", Description = "[optional] The height of the picture.")] string height)
+        {
+            try
+            {
+                
+                Excel.Application excelApplication = (Excel.Application)ExcelDnaUtil.Application;
+                Excel.Worksheet ws = (Excel.Worksheet)excelApplication.ActiveSheet;
 
+                ExcelReference caller = (ExcelReference)XlCall.Excel(XlCall.xlfCaller);
+
+                Excel.Range oRange = (Excel.Range)ws.Cells[caller.RowFirst + 1, caller.ColumnFirst + 1];
+
+                try
+                {
+                    System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("fr-FR");
+                    //Get range value
+                    int? value = null;
+
+                    //System.Globalization.CultureInfo cultureInfo = new System.Globalization.CultureInfo("en-US");
+                    //var test = oRange.GetType().InvokeMember("Value2", BindingFlags.InvokeMethod, null, oRange, null);
+
+                    //var cellTest = ws.Cells[caller.RowFirst + 1, caller.ColumnFirst + 1].Values2;
+                    var cellValue = (string)oRange.Value2;
+                    value = Convert.ToInt16(cellValue);
+
+                    if (value != null)
+                    {
+                        foreach (Excel.Shape shape in ws.Shapes)
+                        {
+                            if (shape.ID == oRange.Value)
+                            {
+                                shape.Delete();
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+
+                }
+
+
+
+                float Left = (float)((double)oRange.Left);
+                float Top = (float)((double)oRange.Top);
+
+                System.Drawing.Image img = System.Drawing.Image.FromFile(path);
+
+                double ratio =  img.Width / img.Height;
+                float pictureHeight = 50;
+                float pictureWidth = (float)Math.Round(pictureHeight * ratio);
+
+                if (height == "" && width == "")
+                {
+
+                }
+                else if (height == "")
+                {
+                    pictureWidth = (float)Convert.ToInt16(width);
+                    pictureHeight = (float)Math.Round(pictureWidth / ratio);
+                }
+                else if (width == "")
+                {
+                    
+                    pictureHeight = (float)Convert.ToInt16(height);
+                    pictureWidth = (float)Math.Round(pictureHeight * ratio);
+                }
+
+                
+
+                Excel.Shape picture = ws.Shapes.AddPicture(path, Microsoft.Office.Core.MsoTriState.msoTrue, Microsoft.Office.Core.MsoTriState.msoCTrue, Left, Top, pictureWidth, pictureHeight);
+                
+                return picture.ID.ToString(); ;
+            }
+            catch (Exception ex)
+            {
+                string test = ex.Message;
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "My functions", Description = "Converts a given number into its full text in french.", HelpTopic = "Converts a given number into its full text in french.")]
+        public static object CONVERTTOFRENCH(
+    [ExcelArgument("input", Name = "input", Description = "The number to be spelled")] int input)
+        {
+            try
+            {
+                TexteEnLettre texteEnLettre = new TexteEnLettre();
+                string texte = texteEnLettre.IntToFr(input);
+                //Clean text
+                texte = texte.Replace("  ", " ");
+                texte = texte.Trim(' ');
+                // Ajoute une majuscule au début
+                return texte.First().ToString().ToUpper() + texte.Substring(1);
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
     }
 }
