@@ -10,6 +10,7 @@ using System.Globalization;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
 
+
 namespace MyExcelFunctions
 {
     public static class MyFunctions
@@ -247,5 +248,102 @@ namespace MyExcelFunctions
                 return ExcelDna.Integration.ExcelError.ExcelErrorNA;
             }
         }
+
+
+        [ExcelFunction(Category = "My functions", Description = "Create a table from sets of possible values.", HelpTopic = "Create a table from sets of possible values.")]
+        public static object GENERATELISTFROMVALUES(
+    [ExcelArgument("values", Name = "values", Description = "A series of values in columns.")] object values)
+        {
+            if (values is object[,])
+            {
+                try
+                {
+                    object[,] inputArray = (object[,])values;
+                    //Create a list of list of string
+                    List<List<object>> columns = new List<List<object>>();
+
+                    for (int i = 0; i < inputArray.GetLength(1); i++)
+                    {
+                        List<object> column = new List<object>();
+
+                        for (int j = 0; j < inputArray.GetLength(0); j++)
+                        {
+                            if (inputArray[j, i] != ExcelDna.Integration.ExcelEmpty.Value)
+                            {
+                                column.Add(inputArray[j, i]);
+                            }
+                        }
+                        columns.Add(column);
+                    }
+
+                    int lineNumber = columns.Aggregate(1, (x, y) => x * y.Count);
+                    int columnNumber = columns.Count;
+
+                    object[,] outputTable = new object[lineNumber, columnNumber];
+
+                    //for (int i = 0; i < outputTable.GetLength(0); i++)
+                    //{
+                    //    for (int j = 0; j < outputTable.GetLength(1); j++)
+                    //    {
+                    //        if (inputArray[i, j] != ExcelDna.Integration.ExcelEmpty.Value)
+                    //        {
+                    //            outputTable[i, j] = 2;//columns[i][j];
+                    //        }
+                    //    }
+                    //}
+
+                    //List<List<object>> query = CrossJoinList(columns[0], columns[1]);
+
+                    IEnumerable<IEnumerable<object>> query = CartesianProduct(columns);
+
+
+                    int k = 0;
+                    foreach (IEnumerable<object> objects in query)
+                    {
+                        int l = 0;
+                        foreach (object obj in objects)
+                        {
+                            outputTable[k, l] = obj;
+                            l++;
+                        }
+                        k++;
+                    }
+                    return outputTable;
+                }
+                catch
+                {
+                    return new object[,] { { ExcelDna.Integration.ExcelError.ExcelErrorNA } };
+                }
+            }
+            else
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+
+        }
+
+        private static List<List<object>> CrossJoinList(List<object> list1, List<object> list2)
+        {
+            List<List<object>> query = list1.SelectMany(list0 => list2, (object0, object1) => new List<object>() { object0, object1 }).ToList<List<object>>();
+
+            return query;
+        }
+
+        private static IEnumerable<IEnumerable<T>> CartesianProduct<T>(this IEnumerable<IEnumerable<T>> sequences)
+        {
+            if (sequences == null)
+            {
+                return null;
+            }
+
+            IEnumerable<IEnumerable<T>> emptyProduct = new[] { Enumerable.Empty<T>() };
+
+            return sequences.Aggregate(
+                emptyProduct,
+                (accumulator, sequence) => accumulator.SelectMany(
+                    accseq => sequence,
+                    (accseq, item) => accseq.Concat(new[] { item })));
+        }
+
     }
 }
