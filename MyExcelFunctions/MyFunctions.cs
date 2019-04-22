@@ -231,11 +231,12 @@ namespace MyExcelFunctions
 
         [ExcelFunction(Category = "My functions", Description = "Converts a given number into its full text in french.", HelpTopic = "Converts a given number into its full text in french.")]
         public static object CONVERTTOFRENCH(
-    [ExcelArgument("input", Name = "input", Description = "The number to be spelled")] int input)
+    [ExcelArgument("input", Name = "input", Description = "The number to be spelled")] double value)
         {
             try
             {
                 TexteEnLettre texteEnLettre = new TexteEnLettre();
+                int input = (int)Math.Truncate(value);
                 string texte = texteEnLettre.IntToFr(input);
                 //Clean text
                 texte = texte.Replace("  ", " ");
