@@ -152,7 +152,7 @@ namespace MyExcelFunctions
         {
             try
             {
-                
+
                 Excel.Application excelApplication = (Excel.Application)ExcelDnaUtil.Application;
                 Excel.Worksheet ws = (Excel.Worksheet)excelApplication.ActiveSheet;
 
@@ -196,7 +196,7 @@ namespace MyExcelFunctions
 
                 System.Drawing.Image img = System.Drawing.Image.FromFile(path);
 
-                double ratio =  img.Width / img.Height;
+                double ratio = img.Width / img.Height;
                 float pictureHeight = 50;
                 float pictureWidth = (float)Math.Round(pictureHeight * ratio);
 
@@ -211,15 +211,15 @@ namespace MyExcelFunctions
                 }
                 else if (width == "")
                 {
-                    
+
                     pictureHeight = (float)Convert.ToInt16(height);
                     pictureWidth = (float)Math.Round(pictureHeight * ratio);
                 }
 
-                
+
 
                 Excel.Shape picture = ws.Shapes.AddPicture(path, Microsoft.Office.Core.MsoTriState.msoTrue, Microsoft.Office.Core.MsoTriState.msoCTrue, Left, Top, pictureWidth, pictureHeight);
-                
+
                 return picture.ID.ToString(); ;
             }
             catch (Exception ex)
@@ -346,5 +346,61 @@ namespace MyExcelFunctions
                     (accseq, item) => accseq.Concat(new[] { item })));
         }
 
+
+        [ExcelFunction(Category = "My functions", Description = "Get the number of UP for a givn number of occupants", HelpTopic = "Get the number of UP for a givn number of occupants")]
+        public static object NOMBREUP(
+    [ExcelArgument("rank", Name = "effectif", Description = "The number of occupants")] int effectif)
+        {
+            try
+            {
+                if (effectif < 20) { return 1; }
+                else if (20 <= effectif && effectif <= 50) { return 2; } //it is actually more complex than that, I am being consevative here
+                else if (50 < effectif && effectif <= 100) { return 2; }
+                else if (100 < effectif && effectif <= 200) { return 3; }
+                else if (200 < effectif && effectif <= 300) { return 4; }
+                else if (300 < effectif && effectif <= 400) { return 5; }
+                else if (400 < effectif && effectif <= 500) { return 6; }
+                else if (effectif > 500)
+                {
+                    return (int)Math.Ceiling((double)effectif / 100);
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "My functions", Description = "Get the number of evacuation paths for a given number of occupants", HelpTopic = "Get the number of evacuation paths for a given number of occupants")]
+        public static object NOMBREDEGAGEMENTS(
+[ExcelArgument("rank", Name = "effectif", Description = "The number of occupants")] int effectif)
+        {
+            try
+            {
+                if (effectif < 20) { return 1; }
+                else if (20 <= effectif && effectif <= 50) { return 2; } //it is actually more complex than that, I am being consevative here
+                else if (50 < effectif && effectif <= 100) { return 2; }
+                else if (100 < effectif && effectif <= 200) { return 2; }
+                else if (200 < effectif && effectif <= 300) { return 2; }
+                else if (300 < effectif && effectif <= 400) { return 2; }
+                else if (400 < effectif && effectif <= 500) { return 2; }
+                else if (effectif > 500)
+                {
+                    return 2 + (int)Math.Ceiling((double)(effectif - 500) / 500);
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
     }
 }
