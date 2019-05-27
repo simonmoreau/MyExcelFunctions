@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Globalization;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
+using Newtonsoft.Json;
 
 
 namespace MyExcelFunctions
@@ -402,5 +403,74 @@ namespace MyExcelFunctions
                 return ExcelDna.Integration.ExcelError.ExcelErrorNA;
             }
         }
+
+        [ExcelFunction(Category = "My functions", Description = "Create a table from sets of possible values.", HelpTopic = "Create a table from sets of possible values.")]
+        public static object BIMSYNCFOLDERS(
+    [ExcelArgument("folders", Name = "folders", Description = "Two columns to describe the folders")] object values)
+        {
+            if (values is object[,])
+            {
+                try
+                {
+                    object[,] inputArray = (object[,])values;
+
+                    // Create a list of folder
+                    List<MyFolder> myFolders = new List<MyFolder>();
+
+                    for (int i = 0; i < inputArray.GetLength(0); i++)
+                    {
+                        // Check if the cell is not empty
+                        if (inputArray[i, 0] != ExcelDna.Integration.ExcelEmpty.Value)
+                        {
+                            string parentId = "";
+                            if (inputArray[i, 1] != ExcelDna.Integration.ExcelEmpty.Value) { parentId = (string)inputArray[i, 1]; }
+                            MyFolder myFolder = new MyFolder(parentId, (string)inputArray[i, 0]);
+                            myFolders.Add(myFolder);
+                        }
+                    }
+
+                    Dictionary<string, BimsyncFolder> lookup = new Dictionary<string, BimsyncFolder>();
+                    myFolders.ForEach(x => lookup.Add(x.ID, new BimsyncFolder { AssociatedFolder = x }));
+
+                    foreach (var item in lookup.Values)
+                    {
+                        BimsyncFolder proposedParent;
+                        if (lookup.TryGetValue(item.AssociatedFolder.ParentID, out proposedParent))
+                        {
+                            item.Parent = proposedParent;
+                            proposedParent.Children.Add(item);
+                        }
+                    }
+                    List< BimsyncFolder> bimsyncFolders = lookup.Values.Where(x => x.Parent == null).ToList();
+
+                    List<Folder> folders = new List<Folder>();
+
+                    foreach (BimsyncFolder bimsyncFolder in bimsyncFolders) 
+                    {
+                        folders.Add(new Folder(bimsyncFolder));
+                    }
+
+                    JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore
+                    };
+
+                    string json = JsonConvert.SerializeObject(folders, jsonSerializerSettings);
+
+                    return "[{\"folders\": " + json + "}]";
+
+                }
+                catch
+                {
+                    return new object[,] { { ExcelDna.Integration.ExcelError.ExcelErrorNA } };
+                }
+            }
+            else
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+
+        }
+
     }
 }
