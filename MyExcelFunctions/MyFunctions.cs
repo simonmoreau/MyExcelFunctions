@@ -472,5 +472,33 @@ namespace MyExcelFunctions
 
         }
 
+        [ExcelFunction(Category = "My functions", Description = "Escape non ASCII characters with their unicode value", HelpTopic = "Escape non ASCII characters with their unicode value")]
+        public static object ENCODENONASCIICHARACTERS(
+            [ExcelArgument("input", Name = "input", Description = "The string to escape.")] string input)
+        {
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (char c in input)
+                {
+                    if (c > 127)
+                    {
+                        // This character is too big for ASCII
+                        string encodedValue = "\\u" + ((int)c).ToString("x4");
+                        sb.Append(encodedValue);
+                    }
+                    else
+                    {
+                        sb.Append(c);
+                    }
+                }
+                return sb.ToString();
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
     }
 }
