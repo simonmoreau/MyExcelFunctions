@@ -239,11 +239,11 @@ namespace MyExcelFunctions
             {
                 TexteEnLettre texteEnLettre = new TexteEnLettre();
                 int wholePart = (int)Math.Truncate(value);
-                double decimalValue = value - wholePart;
+                decimal decimalValue = (decimal) (value - Math.Truncate(value));
                 long decimalPart = 0;
                 if (decimalValue !=0)
                 {
-                    string decimalString = decimalValue.ToString().Replace(System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator, "").TrimStart('0');
+                    string decimalString = value.ToString().Split(System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator.ToCharArray())[1];
                     if (decimalString.Length > 19) { decimalString = decimalString.Substring(0, 19); }
                     decimalPart = Convert.ToInt64(decimalString);
                 }
