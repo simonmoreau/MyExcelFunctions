@@ -232,13 +232,38 @@ namespace MyExcelFunctions
 
         [ExcelFunction(Category = "My functions", Description = "Converts a given number into its full text in french.", HelpTopic = "Converts a given number into its full text in french.")]
         public static object CONVERTTOFRENCH(
-    [ExcelArgument("input", Name = "input", Description = "The number to be spelled")] double value)
+    [ExcelArgument("input", Name = "input", Description = "The number to be spelled")] double value,
+    [ExcelArgument("portion", Name = "portion", Description = "[optional] Type 0 for the interger portion, 1 for decimal portion, 2 for both. Default is 0")] int portion)
         {
             try
             {
                 TexteEnLettre texteEnLettre = new TexteEnLettre();
-                int input = (int)Math.Truncate(value);
-                string texte = texteEnLettre.IntToFr(input);
+                int wholePart = (int)Math.Truncate(value);
+                double decimalValue = value - wholePart;
+                long decimalPart = 0;
+                if (decimalValue !=0)
+                {
+                    string decimalString = decimalValue.ToString().Replace(System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator, "").TrimStart('0');
+                    if (decimalString.Length > 19) { decimalString = decimalString.Substring(0, 19); }
+                    decimalPart = Convert.ToInt64(decimalString);
+                }
+
+
+                string texte = texteEnLettre.IntToFr(wholePart);
+
+                if (portion == 0)
+                {
+                    texte = texteEnLettre.IntToFr(wholePart);
+                }
+                else if (portion == 1)
+                {
+                    texte = texteEnLettre.IntToFr(decimalPart);
+                }
+                else if (portion == 2)
+                {
+                    texte = texteEnLettre.IntToFr(wholePart) + " virgule " + texteEnLettre.IntToFr(decimalPart);
+                }
+
                 //Clean text
                 texte = texte.Replace("  ", " ");
                 texte = texte.Trim(' ');
