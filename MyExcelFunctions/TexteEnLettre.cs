@@ -67,7 +67,7 @@ namespace MyExcelFunctions
                     int master = (int)Math.Floor(Math.Pow(10, i)); // master = 1000
                     long coeff = nb / master;                       // coeff  = 3
                     long reste = nb - (coeff * master);             // reste  = 25123
-                    return (coeff > 1 ? IntToFr(coeff) : "") + " " + logs[i] + (i==2 && coeff > 1 && reste == 0 ? "s" : "") + (reste > 0 ? " " + IntToFr(reste) : "");
+                    return (coeff > 1 ? IntToFr(coeff) : i == 6 || i == 9 ? "Un" : "") + " " + logs[i] + (i==2 && coeff > 1 && reste == 0 ? "s" : "") + (reste > 0 ? " " + IntToFr(reste) : "");
                 }
             }
 
