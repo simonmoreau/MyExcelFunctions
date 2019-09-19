@@ -233,7 +233,7 @@ namespace MyExcelFunctions
         [ExcelFunction(Category = "My functions", Description = "Converts a given number into its full text in french.", HelpTopic = "Converts a given number into its full text in french.")]
         public static object CONVERTTOFRENCH(
     [ExcelArgument("input", Name = "input", Description = "The number to be spelled")] double value,
-    [ExcelArgument("portion", Name = "portion", Description = "[optional] Type 0 for the interger portion, 1 for decimal portion, 2 for both. Default is 0")] int portion)
+    [ExcelArgument("portion", Name = "portion", Description = "[optional] Type 0 for the interger portion, 1 for decimal portion, 2 for both, 3 for 2 digits. Default is 0")] int portion)
         {
             try
             {
@@ -241,11 +241,29 @@ namespace MyExcelFunctions
                 int wholePart = (int)Math.Truncate(value);
                 decimal decimalValue = (decimal) (value - Math.Truncate(value));
                 long decimalPart = 0;
+                long twoDigitDecimalPart = 0;
                 if (decimalValue !=0)
                 {
                     string decimalString = value.ToString().Split(System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator.ToCharArray())[1];
-                    if (decimalString.Length > 19) { decimalString = decimalString.Substring(0, 19); }
+                    if (decimalString.Length > 19) {
+                        decimalString = decimalString.Substring(0, 19);
+                    }
+                    string TwoDigitdecimalString = decimalString;
+
+                    if (decimalString.Length == 0) {
+                        TwoDigitdecimalString = "0";
+                    }
+                    else if (decimalString.Length == 1)
+                    {
+                        TwoDigitdecimalString = decimalString + "0";
+                    }
+                    else
+                    {
+                        TwoDigitdecimalString = decimalString.Substring(0,2);
+                    }
+
                     decimalPart = Convert.ToInt64(decimalString);
+                    twoDigitDecimalPart = Convert.ToInt64(TwoDigitdecimalString);
                 }
 
 
@@ -262,6 +280,10 @@ namespace MyExcelFunctions
                 else if (portion == 2)
                 {
                     texte = texteEnLettre.IntToFr(wholePart) + " virgule " + texteEnLettre.IntToFr(decimalPart);
+                }
+                else if (portion == 3)
+                {
+                    texte = texteEnLettre.IntToFr(twoDigitDecimalPart);
                 }
 
                 //Clean text
