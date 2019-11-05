@@ -238,6 +238,11 @@ namespace MyExcelFunctions
             try
             {
                 TexteEnLettre texteEnLettre = new TexteEnLettre();
+                if (portion == 3)
+                {
+                    value = Math.Round(value,2);
+                }
+
                 int wholePart = (int)Math.Truncate(value);
                 decimal decimalValue = (decimal) (value - Math.Truncate(value));
                 long decimalPart = 0;
