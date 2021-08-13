@@ -2,20 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using ExcelDna.Integration;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using Excel = Microsoft.Office.Interop.Excel;
-using System.Reflection;
 using Newtonsoft.Json;
-
+using System.Threading.Tasks;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.IO.Compression;
+using System.Reflection;
 
 namespace MyExcelFunctions
 {
     public static class MyFunctions
     {
+
         [ExcelFunction(Category = "My functions", Description = "Returns the directory information for the specified path string")]
         public static object GETDIRECTORYNAME([ExcelArgument("path", Name = "path", Description = "The path of a file or directory")] string path)
         {
@@ -240,22 +244,24 @@ namespace MyExcelFunctions
                 TexteEnLettre texteEnLettre = new TexteEnLettre();
                 if (portion == 3)
                 {
-                    value = Math.Round(value,2);
+                    value = Math.Round(value, 2);
                 }
 
                 int wholePart = (int)Math.Truncate(value);
-                decimal decimalValue = (decimal) (value - Math.Truncate(value));
+                decimal decimalValue = (decimal)(value - Math.Truncate(value));
                 long decimalPart = 0;
                 long twoDigitDecimalPart = 0;
-                if (decimalValue !=0)
+                if (decimalValue != 0)
                 {
                     string decimalString = value.ToString().Split(System.Globalization.NumberFormatInfo.CurrentInfo.NumberDecimalSeparator.ToCharArray())[1];
-                    if (decimalString.Length > 19) {
+                    if (decimalString.Length > 19)
+                    {
                         decimalString = decimalString.Substring(0, 19);
                     }
                     string TwoDigitdecimalString = decimalString;
 
-                    if (decimalString.Length == 0) {
+                    if (decimalString.Length == 0)
+                    {
                         TwoDigitdecimalString = "0";
                     }
                     else if (decimalString.Length == 1)
@@ -264,7 +270,7 @@ namespace MyExcelFunctions
                     }
                     else
                     {
-                        TwoDigitdecimalString = decimalString.Substring(0,2);
+                        TwoDigitdecimalString = decimalString.Substring(0, 2);
                     }
 
                     decimalPart = Convert.ToInt64(decimalString);
@@ -383,7 +389,7 @@ namespace MyExcelFunctions
             return query;
         }
 
-        private static IEnumerable<IEnumerable<T>> CartesianProduct<T>(this IEnumerable<IEnumerable<T>> sequences)
+        private static IEnumerable<IEnumerable<T>> CartesianProduct<T>(IEnumerable<IEnumerable<T>> sequences)
         {
             if (sequences == null)
             {
@@ -493,11 +499,11 @@ namespace MyExcelFunctions
                             proposedParent.Children.Add(item);
                         }
                     }
-                    List< BimsyncFolder> bimsyncFolders = lookup.Values.Where(x => x.Parent == null).ToList();
+                    List<BimsyncFolder> bimsyncFolders = lookup.Values.Where(x => x.Parent == null).ToList();
 
                     List<Folder> folders = new List<Folder>();
 
-                    foreach (BimsyncFolder bimsyncFolder in bimsyncFolders) 
+                    foreach (BimsyncFolder bimsyncFolder in bimsyncFolders)
                     {
                         folders.Add(new Folder(bimsyncFolder));
                     }
@@ -552,5 +558,123 @@ namespace MyExcelFunctions
             }
         }
 
+        [ExcelFunction(Category = "My functions", Description = "Télécharge une quantité d'une fiche produit de la base Inies", HelpTopic = "Télécharge une quantité d'une fiche produit de la base Inies")]
+        public static object INIESQUANTITE(
+    [ExcelArgument("Norme", Name = "Norme", Description = "Le numéro de la norme de la quantité recherché")] int norme,
+    [ExcelArgument("Phase", Name = "Phase", Description = "Le numéro de la phase de la quantité recherché")] int phase,
+    [ExcelArgument("NumFiche", Name = "NumFiche", Description = "Le numéro de la fiche produit.")] int NumFiche)
+        {
+            // Don't do anything else here - might run at unexpected times...
+            return ExcelAsyncUtil.Run("INIES", new object[] { NumFiche, norme, phase },
+                delegate { return GetQuantite(NumFiche, norme, phase); });
+
+        }
+
+        [ExcelFunction(Category = "My functions", Description = "Retourne le lien vers la fiche produit INIES", HelpTopic = "Retourne le lien vers la fiche produit INIES")]
+        public static object INIESLINK(
+[ExcelArgument("NumFiche", Name = "NumFiche", Description = "Le numéro de la fiche produit.")] int NumFiche)
+        {
+            try
+            {
+                return $"https://www.base-inies.fr/iniesV4/dist/consultation.html?id={NumFiche}";
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        private static object GetQuantite(int NumFiche, int normeId, int phaseId)
+        {
+            try
+            {
+                Produit produit = GetProduit(NumFiche).Result;
+
+                if (produit == null) return ExcelDna.Integration.ExcelError.ExcelErrorNull;
+
+                TINDICATEURQUANTITE indicateursQuantité = produit.T_INDICATEUR_QUANTITEs.Where(i => i.ID_INDICATEUR_NORME == normeId && i.ID_PHASE_NORME == phaseId).FirstOrDefault();
+
+                if (indicateursQuantité != null)
+                {
+                    return indicateursQuantité.QUANTITE;
+                }
+
+                return ExcelDna.Integration.ExcelError.ExcelErrorNull;
+            }
+            catch (Exception ex)
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        private static async Task<Produit> GetProduit(int NumFiche)
+        {
+            ICredentials credentials = CredentialCache.DefaultCredentials;
+            IWebProxy proxy = WebRequest.DefaultWebProxy;
+            proxy.Credentials = credentials;
+
+            HttpClientHandler httpClientHandler = new HttpClientHandler()
+            {
+                Proxy = proxy,
+                AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+            };
+ 
+            using (var client = new HttpClient(httpClientHandler))
+            {
+
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
+                client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-US"));
+                ////client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en;q=0.9"));
+                ////client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("fr;q=0.8"));
+                //client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("ScraperBot", "1.0"));
+
+                HttpResponseMessage httpResponseMessage = await client.GetAsync($"https://www.base-inies.fr/iniesV4/dist/api/Produit/{NumFiche}");
+
+                using (Stream csStream = new GZipStream(await httpResponseMessage.Content.ReadAsStreamAsync(), CompressionMode.Decompress))
+                {
+                    // convert stream to string
+                    StreamReader reader = new StreamReader(csStream);
+                    string responseString = reader.ReadToEnd();
+
+                    Produit produit = JsonConvert.DeserializeObject<Produit>(responseString);
+
+                    return produit;
+
+                }
+
+            }
+        }
+
+
+        [ExcelFunction(Category = "My functions", Description = "Télécharge une quantité d'une fiche produit de la base Inies", HelpTopic = "Télécharge une quantité d'une fiche produit de la base Inies")]
+        public static object INIESUNITE(
+[ExcelArgument("Norme", Name = "Norme", Description = "Le numéro de la norme de la quantité recherché")] int normeId)
+        {
+            List<NORME> normes = ReadConfigurations<List<NORME>>("normes.json");
+            List<UNITE> unites = ReadConfigurations<List<UNITE>>("unite.json");
+            NORME norme = normes.Where(n => n.ID_NORME == 2).FirstOrDefault();
+            TINDICATEURNORME tINDICATEURNORME = norme.T_INDICATEUR_NORMEs.Where(i => i.ID_INDICATEUR_NORME == normeId).FirstOrDefault();
+            UNITE unite = unites.Where(u => u.ID_UNITE == tINDICATEURNORME.T_INDICATEURs.ID_UNITE).FirstOrDefault();
+            return unite.NOM_UNITE;
+
+        }
+
+        private static T ReadConfigurations<T>(string fileName)
+        {
+
+            //or from the entry point to the application - there is a difference!
+            string[] names = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+
+
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            using (Stream stream = assembly.GetManifestResourceStream("MyExcelFunctions.Resources." + fileName))
+            {
+                // convert stream to string
+                StreamReader reader = new StreamReader(stream);
+                string responseString = reader.ReadToEnd();
+                T value = JsonConvert.DeserializeObject<T>(responseString);
+                return value;
+            }
+        }
     }
 }

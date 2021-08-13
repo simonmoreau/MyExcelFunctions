@@ -1,0 +1,560 @@
+[
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 1,
+        "NOM_UNITE": "dm²",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "décimètre carré"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 2,
+        "NOM_UNITE": "m²",
+        "IS_UNITE_UF": true,
+        "DESCRIPTION": "mètre carré"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 3,
+        "NOM_UNITE": "kg",
+        "IS_UNITE_UF": true,
+        "DESCRIPTION": "kilogramme"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 4,
+        "NOM_UNITE": "m³",
+        "IS_UNITE_UF": true,
+        "DESCRIPTION": "mètre cube"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 5,
+        "NOM_UNITE": "m",
+        "IS_UNITE_UF": true,
+        "DESCRIPTION": "mètre"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 6,
+        "NOM_UNITE": "MJ",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "mégajoule"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 7,
+        "NOM_UNITE": "kWh",
+        "IS_UNITE_UF": true,
+        "DESCRIPTION": "kilowatt par heure"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 8,
+        "NOM_UNITE": "L",
+        "IS_UNITE_UF": true,
+        "DESCRIPTION": "litre"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 9,
+        "NOM_UNITE": "g",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "gramme"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 10,
+        "NOM_UNITE": "cm",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "centimètre"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 11,
+        "NOM_UNITE": "ml",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "millilitre"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 12,
+        "NOM_UNITE": "%",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 13,
+        "NOM_UNITE": "unité",
+        "IS_UNITE_UF": true,
+        "DESCRIPTION": "unité"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 14,
+        "NOM_UNITE": "kg CO2 eq.",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 15,
+        "NOM_UNITE": "kg SO2 eq.",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 16,
+        "NOM_UNITE": "kg CFC-11 eq.",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 17,
+        "NOM_UNITE": "kg C2H4 eq.",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 18,
+        "NOM_UNITE": "mg",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "milligramme"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 19,
+        "NOM_UNITE": "mm³",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "millimètre cube"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 20,
+        "NOM_UNITE": "g  eq. SO2",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 21,
+        "NOM_UNITE": "g C2H4 eq.",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 22,
+        "NOM_UNITE": "g/m²",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "gramme par mètre carré"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 23,
+        "NOM_UNITE": "kg Sb eq.",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 24,
+        "NOM_UNITE": "m3/UF",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 25,
+        "NOM_UNITE": "kg/m²",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "kilogramme par mètre carré"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 26,
+        "NOM_UNITE": "kWhep",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 27,
+        "NOM_UNITE": "-",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 28,
+        "NOM_UNITE": "m³ d'air",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 29,
+        "NOM_UNITE": "kg C2H4 eq.",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 30,
+        "NOM_UNITE": "kg (PO4)3- eq.",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 31,
+        "NOM_UNITE": "t",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 32,
+        "NOM_UNITE": "m³ d'eau",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 33,
+        "NOM_UNITE": "person réserve",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 34,
+        "NOM_UNITE": "kg Sb eq.",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 35,
+        "NOM_UNITE": "mole eq. H+",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 36,
+        "NOM_UNITE": "mole eq. N",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 37,
+        "NOM_UNITE": "km",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "kilomètre"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 38,
+        "NOM_UNITE": "m",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "mètre"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 39,
+        "NOM_UNITE": "g.eq.CO2",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "g.equivalent.CO2"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 40,
+        "NOM_UNITE": "g.eq.CFC-11",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "g.equivalent.CFC-11"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 41,
+        "NOM_UNITE": "g.eq.P04 3-",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "g.equivalent.P04 3-"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 42,
+        "NOM_UNITE": "g.eq.C2H4",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "g.equivalent.C2H4"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 43,
+        "NOM_UNITE": "g.eq.H+",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "g.equivalent.H+"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 44,
+        "NOM_UNITE": "dm³",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 45,
+        "NOM_UNITE": "year-1",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 46,
+        "NOM_UNITE": "kWc",
+        "IS_UNITE_UF": true,
+        "DESCRIPTION": "kilowatt crète"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 47,
+        "NOM_UNITE": "t.km",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 48,
+        "NOM_UNITE": "daN",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "décaNewton"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 49,
+        "NOM_UNITE": "m3/h",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "mètre cube /heure"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 50,
+        "NOM_UNITE": "mm",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "milimètre"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 51,
+        "NOM_UNITE": "kg/m3",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "kilogramme par mètre cube"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 52,
+        "NOM_UNITE": "kW",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "kilowatt"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 53,
+        "NOM_UNITE": "kWc",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "kilowatt crète"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 54,
+        "NOM_UNITE": "db",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "décibel"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 55,
+        "NOM_UNITE": "K/W",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "kelvins par watt"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 56,
+        "NOM_UNITE": "W/M²K",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "watt par m² fois Kelvins"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 57,
+        "NOM_UNITE": "cm²",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "centimètre carré"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 58,
+        "NOM_UNITE": "mm²",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "milimètre carré"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 59,
+        "NOM_UNITE": "Wc",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "watt crète"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 60,
+        "NOM_UNITE": "étage",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": null
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 61,
+        "NOM_UNITE": "m2.K/W",
+        "IS_UNITE_UF": null,
+        "DESCRIPTION": "kelvins par watt par m²"
+    },
+    {
+        "T_CONSTITUANT_UFs": [],
+        "T_INDICATEURs": [],
+        "T_PRODUITs": [],
+        "ID_UNITE": 62,
+        "NOM_UNITE": "kg/m",
+        "IS_UNITE_UF": true,
+        "DESCRIPTION": "masse linéaire"
+    }
+]
