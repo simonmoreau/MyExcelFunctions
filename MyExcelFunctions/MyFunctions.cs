@@ -462,6 +462,69 @@ namespace MyExcelFunctions
             }
         }
 
+        [ExcelFunction(Category = "My functions", Description = "Get the number of parking slot available in a given lenght", HelpTopic = "Get the number of parking slot available in a given lenght")]
+        public static object NOMBREDEPLACES(
+            [ExcelArgument("lenght", Name = "lenght", Description = "The available lenght")] double lenght,
+            [ExcelArgument("column", Name = "columnWidth", Description = "The width of a column")] double columnWidth)
+        {
+            try
+            {
+
+                if (lenght < 2.5)
+                {
+                    return 0;
+                }
+                else
+                {
+                    double cumulatedLenght = 0;
+                    double nextPlaceLenght = 2.5; // 2.3, 2.5, 0.4
+                    double blockLenght = 2.3 + 2.5 * 2 + columnWidth;
+                    int placeNumber = 0;
+
+                    // Count the number of blocks
+                    int blockNumber = Convert.ToInt16(Math.Floor(lenght / blockLenght));
+                    placeNumber = placeNumber + blockNumber * 3;
+
+                    // Count the remaining places
+                    double remainingLenght = Math.Round(lenght - blockNumber * blockLenght,6);
+
+                    if (remainingLenght < 2.5)
+                    {
+                        // I can't any place
+                        placeNumber = placeNumber + 0;
+                    }
+                    else if (remainingLenght >= 2.5 && remainingLenght < 2.5 * 2)
+                    {
+                        // I can add one place
+                        placeNumber = placeNumber + 1;
+                    }
+                    else if (remainingLenght >= 2 * 2.5 && remainingLenght < 2.5 * 2 + 2.3)
+                    {
+                        // I can add two places
+                        placeNumber = placeNumber + 2;
+                    }
+                    else if (remainingLenght >= 2.5 * 2 + 2.3)
+                    {
+                        // I can add three places
+                        placeNumber = placeNumber + 3;
+                    }
+                    else
+                    {
+                        // I can't any place
+                        placeNumber = placeNumber + 0;
+                    }
+
+                    return placeNumber;
+
+                }
+
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
         [ExcelFunction(Category = "My functions", Description = "Create a table from sets of possible values.", HelpTopic = "Create a table from sets of possible values.")]
         public static object BIMSYNCFOLDERS(
     [ExcelArgument("folders", Name = "folders", Description = "Two columns to describe the folders")] object values)
