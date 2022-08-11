@@ -17,6 +17,7 @@ using System.Reflection;
 using System.Xml.Serialization;
 using MyExcelFunctions.XML;
 using System.Xml;
+using System.Data;
 
 namespace MyExcelFunctions
 {
@@ -105,22 +106,67 @@ namespace MyExcelFunctions
             }
         }
 
-        [ExcelFunction(Category = "My functions", Description = "Searches the specified input string for the first occurrence of the specified regular expression", HelpTopic = "Searches the specified input string for the first occurrence of the specified regular expression")]
-        public static object REGEX(
+        [ExcelFunction(Category = "My functions", Description = "Searches the specified input string for the specified regular expression", HelpTopic = "Searches the specified input string for the specified regular expression")]
+        public static object REGEXEXTRACT(
             [ExcelArgument("input", Name = "input", Description = "The string to search for a match.")] string input,
-            [ExcelArgument("pattern", Name = "pattern", Description = "The regular expression pattern to match.")] string pattern)
+            [ExcelArgument("pattern", Name = "pattern", Description = "The regular expression pattern to match.")] string pattern,
+            [ExcelArgument("instance_num", Name = "instance_num", Description = "(Optional) A serial number that indicates which instance to extract. If omitted, returns the first found matches (default).")] object instance_num,
+            [ExcelArgument("match_case", Name = "match_case", Description = "(Optional) Defines whether to match (TRUE or omitted) or ignore (FALSE) text case.")] object match_case)
         {
             try
             {
-                Match match = new Regex(pattern).Match(input);
-
-                if (match.Success)
+                bool _match_case = true;
+                if (match_case != null)
                 {
-                    return match.Value;
+                    if (match_case.GetType() == typeof(ExcelDna.Integration.ExcelMissing))
+                    {
+                        _match_case = true;
+                    }
+                    else if (match_case.GetType() != typeof(bool))
+                    {
+                        return ExcelDna.Integration.ExcelError.ExcelErrorValue;
+                    }
+                    else
+                    {
+                        _match_case = Convert.ToBoolean(match_case);
+                    }
+                }
+
+
+                int _instance_num = 0;
+                if (instance_num != null)
+                {
+                    if (instance_num.GetType() == typeof(ExcelDna.Integration.ExcelMissing))
+                    {
+                        _instance_num = 0;
+                    }
+                    else if (instance_num.GetType() != typeof(double))
+                    {
+                        return ExcelDna.Integration.ExcelError.ExcelErrorValue;
+                    }
+                    else
+                    {
+                        _instance_num = Convert.ToInt32(instance_num);
+                    }
+                }
+
+
+                Regex regex = new Regex(pattern);
+
+                if (!_match_case)
+                {
+                    regex = new Regex(pattern, RegexOptions.IgnoreCase);
+                }
+
+                MatchCollection matches = regex.Matches(input);
+
+                if (matches.Count > 0 && matches.Count > _instance_num)
+                {
+                    return matches[_instance_num].Value;
                 }
                 else
                 {
-                    return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+                    return ExcelDna.Integration.ExcelError.ExcelErrorNull;
                 }
             }
             catch
@@ -128,6 +174,50 @@ namespace MyExcelFunctions
                 return ExcelDna.Integration.ExcelError.ExcelErrorNA;
             }
         }
+
+        [ExcelFunction(Category = "My functions", Description = "Replaces the values matching a regex with the text you specify.", HelpTopic = "Replaces the values matching a regex with the text you specify.")]
+        public static object REGEXREPLACE(
+    [ExcelArgument("input", Name = "input", Description = "The string to search for a match.")] string input,
+    [ExcelArgument("pattern", Name = "pattern", Description = "The regular expression pattern to match.")] string pattern,
+    [ExcelArgument("replacement", Name = "replacement", Description = "The text to replace the matching substrings with.")] string replacement,
+    [ExcelArgument("match_case", Name = "match_case", Description = "(Optional) Defines whether to match (TRUE or omitted) or ignore (FALSE) text case.")] object match_case)
+        {
+            try
+            {
+                bool _match_case = true;
+                if (match_case != null)
+                {
+                    if (match_case.GetType() == typeof(ExcelDna.Integration.ExcelMissing))
+                    {
+                        _match_case = true;
+                    }
+                    else if (match_case.GetType() != typeof(bool))
+                    {
+                        return ExcelDna.Integration.ExcelError.ExcelErrorValue;
+                    }
+                    else
+                    {
+                        _match_case = Convert.ToBoolean(match_case);
+                    }
+                }
+
+                Regex regex = new Regex(pattern);
+
+                if (!_match_case)
+                {
+                    regex = new Regex(pattern, RegexOptions.IgnoreCase);
+                }
+
+                return regex.Replace(input, replacement);
+
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+
 
         [ExcelFunction(Category = "My functions", Description = "Converts the string representation of a date and time to its System.DateTime equivalent.", HelpTopic = "Converts the string representation of a date and time to its System.DateTime equivalent.")]
         public static object PARSEDATE(
