@@ -14,6 +14,9 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.IO.Compression;
 using System.Reflection;
+using System.Xml.Serialization;
+using MyExcelFunctions.XML;
+using System.Xml;
 
 namespace MyExcelFunctions
 {
@@ -523,6 +526,98 @@ namespace MyExcelFunctions
             {
                 return ExcelDna.Integration.ExcelError.ExcelErrorNA;
             }
+        }
+
+        [ExcelFunction(Category = "My functions", Description = "Convert a range to an XML string.", HelpTopic = "Convert a range to an XML string. The first line are the fields of the XML file")]
+        public static object XMLSERIALIZE(
+[ExcelArgument("table", Name = "table", Description = "The table to convert to XML")] object values,
+[ExcelArgument("Name", Name = "Name", Description = "The name of each row")] object rowName)
+        {
+            if (values is object[,])
+            {
+                try
+                {
+                    object[,] inputArray = (object[,])values;
+
+                    // Build an dictonary of field
+
+                    List<DynamicField> fields = new List<DynamicField>();
+                    for (int i = 0; i < inputArray.GetLength(1); i++)
+                    {
+                        string name = inputArray[0, i].ToString();
+                        Type fieldType = inputArray[1, i].GetType();
+                        fields.Add(new DynamicField(name,fieldType));
+                    }
+
+                    if (rowName.GetType() == typeof(ExcelDna.Integration.ExcelMissing))
+                    {
+                        rowName = "object";
+                    }
+
+                    // Create a new type to be exported
+                    Type type = XML.XmlTypeBuilder.CompileResultType(fields.ToArray(), rowName.ToString());
+
+                    // Create a list of object of this type
+                    List<object> objects = new List<object>();
+
+                    for (int i = 1; i < inputArray.GetLength(0); i++)
+                    {
+                        var rowObject = Activator.CreateInstance(type);
+
+                        for (int j = 0; j < inputArray.GetLength(1); j++)
+                        {
+                            PropertyInfo propertyInfo = rowObject.GetType().GetProperty(fields[j].Name);
+                            if (inputArray[i, j].GetType() == fields[j].Type)
+                            {
+                                propertyInfo.SetValue(rowObject, inputArray[i, j], null);
+                            }
+                            else
+                            {
+                                object castedObject = null;
+                                try
+                                {
+                                    castedObject = Convert.ChangeType(inputArray[i, j], fields[j].Type);
+                                }
+                                catch
+                                {
+                                }
+                                propertyInfo.SetValue(rowObject, castedObject, null);
+                            }
+                        }
+
+                        objects.Add(rowObject);
+                    }
+
+                    var objectSerialize = new ObjectSerialize
+                    {
+                        ObjectList = objects
+                    };
+
+                    XmlSerializer xsSubmit = new XmlSerializer(typeof(ObjectSerialize));
+                    var xml = "";
+
+                    using (var sww = new StringWriter())
+                    {
+                        using (XmlWriter writers = XmlWriter.Create(sww))
+                        {
+                            xsSubmit.Serialize(writers, objectSerialize);
+                            xml = sww.ToString(); // Your XML
+                        }
+                    }
+
+                    return xml;
+
+                }
+                catch (Exception ex)
+                {
+                    return new object[,] { { ExcelDna.Integration.ExcelError.ExcelErrorNA } };
+                }
+            }
+            else
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+
         }
 
         [ExcelFunction(Category = "My functions", Description = "Create a table from sets of possible values.", HelpTopic = "Create a table from sets of possible values.")]
