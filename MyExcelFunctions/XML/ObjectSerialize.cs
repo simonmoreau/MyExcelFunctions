@@ -34,8 +34,20 @@ namespace MyExcelFunctions.XML
                 var properties = obj.GetType().GetProperties();
                 foreach (var propertyInfo in properties)
                 {
+                    object value = propertyInfo.GetValue(obj);
+                    string textValue = "";
+
+                    if (value != null)
+                    {
+                        if (value.GetType() != typeof(ExcelDna.Integration.ExcelEmpty))
+                        {
+                            textValue = value?.ToString();
+                        }
+                    }
+
+
                     //Provide elements for per property
-                    writer.WriteElementString(propertyInfo.Name, propertyInfo.GetValue(obj).ToString());
+                    writer.WriteElementString(propertyInfo.Name, textValue);
                 }
                 writer.WriteEndElement();
             }
