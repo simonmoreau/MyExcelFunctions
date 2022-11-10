@@ -581,7 +581,7 @@ namespace MyExcelFunctions
                     placeNumber = placeNumber + blockNumber * 3;
 
                     // Count the remaining places
-                    double remainingLenght = Math.Round(lenght - blockNumber * blockLenght,6);
+                    double remainingLenght = Math.Round(lenght - blockNumber * blockLenght, 6);
 
                     if (remainingLenght < 2.5)
                     {
@@ -665,17 +665,25 @@ namespace MyExcelFunctions
 
                     if (!parseResult) return ExcelDna.Integration.ExcelError.ExcelErrorNA;
 
-                        for (int i = 0; i < inputArray.GetLength(0); i++)
+                    Dictionary<string, string> keyDictionary = new Dictionary<string, string>();
+
+                    for (int i = 0; i < inputArray.GetLength(0); i++)
                     {
                         string key = inputArray[i, 0].ToString();
                         if (textValue.Contains(key))
                         {
                             string replacementValue = inputArray[i, columnIndex].ToString();
-                            return textValue.Replace(key, replacementValue);
+                            keyDictionary.Add(key, replacementValue);
                         }
                     }
 
-                    return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+                    string textReturn = textValue;
+                    foreach (string key in keyDictionary.Keys)
+                    {
+                        textReturn = textReturn.Replace(key, keyDictionary[key]);
+                    }
+
+                    return textReturn;
 
                 }
                 catch (Exception ex)
@@ -750,7 +758,7 @@ namespace MyExcelFunctions
                 Type fieldType = GetNullableType(inputArray[1, i].GetType());
 
                 int rowIndex = 1;
-                while (fieldType.FullName == "ExcelDna.Integration.ExcelEmpty" && rowIndex < inputArray.GetLength(0) )
+                while (fieldType.FullName == "ExcelDna.Integration.ExcelEmpty" && rowIndex < inputArray.GetLength(0))
                 {
                     fieldType = GetNullableType(inputArray[rowIndex, i].GetType());
                     rowIndex++;
@@ -992,7 +1000,7 @@ namespace MyExcelFunctions
                 Proxy = proxy,
                 AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
             };
- 
+
             using (var client = new HttpClient(httpClientHandler))
             {
 
