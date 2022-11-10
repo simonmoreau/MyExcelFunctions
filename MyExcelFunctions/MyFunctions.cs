@@ -19,6 +19,7 @@ using MyExcelFunctions.XML;
 using System.Xml;
 using System.Data;
 using System.Xml.Linq;
+using System.Drawing.Imaging;
 
 namespace MyExcelFunctions
 {
@@ -647,6 +648,49 @@ namespace MyExcelFunctions
 
         }
 
+        [ExcelFunction(Category = "My functions", Description = "Replace string in text based on an array.", HelpTopic = "Replace string in text based on an array.")]
+        public static object FINDANDREPLACE(
+[ExcelArgument("table", Name = "table", Description = "The table where to look for values")] object values,
+[ExcelArgument("column", Name = "column", Description = "The column where to find replacement values")] object column,
+[ExcelArgument("text", Name = "text", Description = "The text to be replaced")] object text)
+        {
+            if (values is object[,])
+            {
+                try
+                {
+                    object[,] inputArray = (object[,])values;
+                    string textValue = (string)text;
+                    int columnIndex = 0;
+                    bool parseResult = int.TryParse(column.ToString(), out columnIndex);
+
+                    if (!parseResult) return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+
+                        for (int i = 0; i < inputArray.GetLength(0); i++)
+                    {
+                        string key = inputArray[i, 0].ToString();
+                        if (textValue.Contains(key))
+                        {
+                            string replacementValue = inputArray[i, columnIndex].ToString();
+                            return textValue.Replace(key, replacementValue);
+                        }
+                    }
+
+                    return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+
+                }
+                catch (Exception ex)
+                {
+                    return new object[,] { { ExcelDna.Integration.ExcelError.ExcelErrorNA } };
+                }
+            }
+            else
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+
+        }
+
+
         [ExcelFunction(Category = "My functions", Description = "Convert a range to an XML string.", HelpTopic = "Convert a range to an XML string. The first line are the fields of the XML file")]
         public static object XMLSERIALIZETOFILE(
 [ExcelArgument("table", Name = "table", Description = "The table to convert to XML")] object values,
@@ -727,7 +771,7 @@ namespace MyExcelFunctions
 
             for (int i = 1; i < inputArray.GetLength(0); i++)
             {
-                var rowObject = Activator.CreateInstance(type);
+                object rowObject = Activator.CreateInstance(type);
 
                 for (int j = 0; j < inputArray.GetLength(1); j++)
                 {
