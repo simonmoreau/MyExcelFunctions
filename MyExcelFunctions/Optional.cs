@@ -52,6 +52,17 @@ namespace MyExcelFunctions
 
         }
 
+        internal static bool Check(object arg, bool defaultValue)
+        {
+            if (arg is bool)
+                return (bool)arg;
+            else if (arg is ExcelMissing)
+                return defaultValue;
+            else
+                throw new ArgumentException();  // Will return #VALUE to Excel
+
+        }
+
         // This one is more tricky - we have to do the double->Date conversions ourselves
         internal static DateTime Check(object arg, DateTime defaultValue)
         {

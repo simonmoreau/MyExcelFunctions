@@ -95,17 +95,23 @@ namespace MyExcelFunctions
         [ExcelFunction(Category = "IO", Description = "Returns the names of files (including their paths) in the specified directory.")]
         public static object GETFILES(
             [ExcelArgument("path", Name = "path", Description = "The relative or absolute path to the directory to search. This string is not case-sensitive.")] string path,
-            [ExcelArgument("searchPattern", Name = "searchPattern", Description = "The search string to match against the names of files in path. This parameter can contain a combination of valid literal path and wildcard (* and ?) characters,but it doesn't support regular expressions.")] object searchPattern)
+            [ExcelArgument("[searchPattern]", Name = "[searchPattern]", Description = "The search string to match against the names of files in path. This parameter can contain a combination of valid literal path and wildcard (* and ?) characters,but it doesn't support regular expressions.")] object searchPattern,
+            [ExcelArgument("[allDirectories]", Name = "[allDirectories]", Description = "The search string to match against the names of files in path. This parameter can contain a combination of valid literal path and wildcard (* and ?) characters,but it doesn't support regular expressions.")] object allDirectories)
         {
             try
             {
+                
                 string pattern = Optional.Check(searchPattern, "");
+                if (pattern == "") pattern = "*";
 
-                string[] paths = Directory.GetFiles(path, pattern);
-                if (pattern == "")
-                {
-                    paths = Directory.GetFiles(path);
-                }
+                bool allDirectoriesBool = Optional.Check(allDirectories, false);
+                SearchOption searchOption = SearchOption.TopDirectoryOnly;
+                if (allDirectoriesBool) { searchOption= SearchOption.AllDirectories; }
+
+                string[] paths = Directory.GetFiles(path, pattern, searchOption);
+
+
+                if (paths.Length== 0) return ExcelDna.Integration.ExcelError.ExcelErrorNull;
 
                 object[,] outputTable = new object[paths.Length, 1];
 
@@ -127,17 +133,19 @@ namespace MyExcelFunctions
         [ExcelFunction(Category = "IO", Description = "Returns the number of files in the specified directory.")]
         public static object COUNTFILES(
     [ExcelArgument("path", Name = "path", Description = "The relative or absolute path to the directory to search. This string is not case-sensitive.")] string path,
-    [ExcelArgument("searchPattern", Name = "searchPattern", Description = "The search string to match against the names of files in path. This parameter can contain a combination of valid literal path and wildcard (* and ?) characters,but it doesn't support regular expressions.")] object searchPattern)
+    [ExcelArgument("[searchPattern]", Name = "[searchPattern]", Description = "The search string to match against the names of files in path. This parameter can contain a combination of valid literal path and wildcard (* and ?) characters,but it doesn't support regular expressions.")] object searchPattern,
+              [ExcelArgument("[allDirectories]", Name = "[allDirectories]", Description = "The search string to match against the names of files in path. This parameter can contain a combination of valid literal path and wildcard (* and ?) characters,but it doesn't support regular expressions.")] object allDirectories)
         {
             try
             {
                 string pattern = Optional.Check(searchPattern, "");
+                if (pattern == "") pattern = "*";
 
-                string[] paths = Directory.GetFiles(path, pattern);
-                if (pattern == "")
-                {
-                    paths = Directory.GetFiles(path);
-                }
+                bool allDirectoriesBool = Optional.Check(allDirectories, false);
+                SearchOption searchOption = SearchOption.TopDirectoryOnly;
+                if (allDirectoriesBool) { searchOption = SearchOption.AllDirectories; }
+
+                string[] paths = Directory.GetFiles(path, pattern, searchOption);
 
                 return paths.Length;
 
