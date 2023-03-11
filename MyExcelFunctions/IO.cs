@@ -3,9 +3,11 @@ using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MyExcelFunctions
@@ -31,6 +33,22 @@ namespace MyExcelFunctions
             try
             {
                 return Path.GetFileName(Path.GetDirectoryName(path));
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "IO", Description = "Retrieves the parent directory of the specified path, including both absolute and relative paths.")]
+        public static object GETPARENTDIRECTORY([ExcelArgument("path", Name = "path", Description = "The path for which to retrieve the parent directory.")] string path)
+        {
+            try
+            {
+                DirectoryInfo directoryInfo = Directory.GetParent(path);
+                if (directoryInfo == null) return "";
+
+                return directoryInfo.FullName;
             }
             catch
             {
@@ -156,42 +174,71 @@ namespace MyExcelFunctions
             }
         }
 
+        [ExcelFunction(Category = "IO", Description = "Moves a specified file to a new location, providing the options to specify a new file name and to overwrite the destination file if it already exists.")]
+        public static object MOVEFILE(
+[ExcelArgument("sourceFileName", Name = "sourceFileName", Description = "The name of the file to move. Can include a relative or absolute path.")] string sourceFileName,
+[ExcelArgument("destFileName", Name = "destFileName", Description = "The new path and name for the file.")] string destFileName,
+      [ExcelArgument("[override]", Name = "[override]", Description = "Erase the target if it already exist.")] object overrideDest)
+        {
+            try
+            {
+                bool overrideDestination = Optional.Check(overrideDest, false);
+                // Ensure that the target does not exist.
+                if (File.Exists(destFileName))
+                {
+                    if (overrideDestination)
+                    {
+                        File.Delete(destFileName);
+                    }
+                    else
+                    {
+                        return sourceFileName;
+                    }
+                }
+
+                // Move the file.
+                File.Move(sourceFileName, destFileName);
+                return destFileName;
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "IO", Description = "Copies an existing file to a new file. Overwriting a file of the same name is allowed.")]
+        public static object COPYFILE(
+[ExcelArgument("sourceFileName", Name = "sourceFileName", Description = "The file to copy.")] string sourceFileName,
+[ExcelArgument("destFileName", Name = "destFileName", Description = "The name of the destination file. This cannot be a directory.")] string destFileName,
+      [ExcelArgument("[override]", Name = "[override]", Description = "true if the destination file can be overwritten; otherwise, false.")] object overrideDest)
+        {
+            try
+            {
+                bool overrideDestination = Optional.Check(overrideDest, false);
+
+                // Move the file.
+                File.Copy(sourceFileName, destFileName, overrideDestination);
+                return destFileName;
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        public static object SleepAsync(string ms)
+        {
+            return ExcelAsyncUtil.Run("SleepAsync", ms, delegate
+            {
+                Debug.Print("{1:HH:mm:ss.fff} Sleeping for {0} ms", ms, DateTime.Now);
+                Thread.Sleep(int.Parse(ms));
+
+                Debug.Print("{1:HH:mm:ss.fff} Done sleeping {0} ms", ms, DateTime.Now);
+                return "Woke Up at " + DateTime.Now.ToString("1:HH:mm:ss.fff");
+            });
+
+        }
+
+
     }
 }
-
-//     The search string to match against the names of files in path. This parameter can contain a combination of valid literal path and wildcard (* and ?) characters,but it doesn't support regular expressions.
-
-//
-// Summary:
-//     Returns the names of files (including their paths) in the specified directory.
-//
-// Parameters:
-//   path:
-//     
-//     
-//
-// Returns:
-//     An array of the full names (including paths) for the files in the specified directory,
-//     or an empty array if no files are found.
-//
-// Exceptions:
-//   T:System.IO.IOException:
-//     path is a file name. -or- A network error has occurred.
-//
-//   T:System.UnauthorizedAccessException:
-//     The caller does not have the required permission.
-//
-//   T:System.ArgumentException:
-//     path is a zero-length string, contains only white space, or contains one or more
-//     invalid characters. You can query for invalid characters by using the System.IO.Path.GetInvalidPathChars
-//     method.
-//
-//   T:System.ArgumentNullException:
-//     path is null.
-//
-//   T:System.IO.PathTooLongException:
-//     The specified path, file name, or both exceed the system-defined maximum length.
-//
-//   T:System.IO.DirectoryNotFoundException:
-//     The specified path is not found or is invalid (for example, it is on an unmapped
-//     drive).
