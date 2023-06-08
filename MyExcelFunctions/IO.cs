@@ -69,6 +69,19 @@ namespace MyExcelFunctions
             }
         }
 
+        [ExcelFunction(Category = "IO", Description = "Determines whether the specified file exists.")]
+        public static object FILEEXISTS([ExcelArgument("path", Name = "path", Description = "The file to check.")] string path)
+        {
+            try
+            {
+                return File.Exists(path);
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
         [ExcelFunction(Category = "IO", Description = "Returns the file name of the specified path string without the extension.")]
         public static object GETFILENAMEWTEXT([ExcelArgument("path", Name = "path", Description = "The path of the file")] string path)
         {
