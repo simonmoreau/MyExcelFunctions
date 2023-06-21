@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text.RegularExpressions;
 
-namespace MyExcelFunctions.XML
+namespace ExcelFunctions.XML
 {
     public static class XmlTypeBuilder
     {
@@ -22,11 +22,11 @@ namespace MyExcelFunctions.XML
             return objectType;
         }
 
-        private static TypeBuilder GetTypeBuilder(string typeName)
+
+        private static TypeBuilder GetTypeBuilder(string typeSignature)
         {
-            var typeSignature = typeName;
             var an = new AssemblyName(typeSignature);
-            AssemblyBuilder assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(an, AssemblyBuilderAccess.Run);
+            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Guid.NewGuid().ToString()), AssemblyBuilderAccess.Run);
             ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule("MainModule");
             TypeBuilder tb = moduleBuilder.DefineType(typeSignature,
                     TypeAttributes.Public |
@@ -80,19 +80,8 @@ namespace MyExcelFunctions.XML
     {
         public DynamicField(string name, Type type)
         {
-            // using System.CodeDom.Compiler;
-            CodeDomProvider provider = CodeDomProvider.CreateProvider("C#");
-            if (provider.IsValidIdentifier(name))
-            {
-                // Valid
-                Name = name;
-            }
-            else
-            {
-                // Not valid
-                Regex r = new Regex("(?:[^a-z0-9]|(?<=['\"])s)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
-                Name = r.Replace(name, "_");
-            }
+            Regex r = new Regex("(?:[^a-z0-9]|(?<=['\"])s)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+            Name = r.Replace(name, "_");
 
             Type = type;
         }

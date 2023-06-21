@@ -5,9 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyExcelFunctions
+namespace ExcelFunctions.Services
 {
-    // Here is the helper class - add to it or change as you require
     internal static class Optional
     {
         internal static string Check(object arg, string defaultValue)

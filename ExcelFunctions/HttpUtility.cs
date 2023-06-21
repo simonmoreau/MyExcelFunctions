@@ -1,15 +1,7 @@
 ﻿using ExcelDna.Integration;
-using Microsoft.Office.Interop.Excel;
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 
-namespace MyExcelFunctions
+namespace ExcelFunctions
 {
     public static class HttpUtility
     {

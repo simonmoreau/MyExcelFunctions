@@ -1,16 +1,8 @@
 ﻿using ExcelDna.Integration;
-using Microsoft.Office.Interop.Excel;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using ExcelFunctions.Services;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace MyExcelFunctions
+namespace ExcelFunctions
 {
     public static class IO
     {
