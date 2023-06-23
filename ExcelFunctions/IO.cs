@@ -74,6 +74,70 @@ namespace ExcelFunctions
             }
         }
 
+        [ExcelFunction(Category = "IO", Description = "Returns the creation time of the specified file or directory.")]
+        public static object FILEGETCREATIONTIME([ExcelArgument("path", Name = "path", Description = "The file or directory for which to obtain creation date and time information.")] string path)
+        {
+            try
+            {
+                return File.GetCreationTime(path);
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "IO", Description = "Returns the last write date and time of the specified file or directory.")]
+        public static object FILEGETLASTWRITETIME([ExcelArgument("path", Name = "path", Description = "The file or directory for which to obtain write date and time information.")] string path)
+        {
+            try
+            {
+                return File.GetLastWriteTime(path);
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "IO", Description = "Gets the size, in bytes, of the current file.")]
+        public static object FILELENGHT([ExcelArgument("path", Name = "path", Description = "The file for which to obtain its size.")] string path)
+        {
+            try
+            {
+                return new System.IO.FileInfo(path).Length;
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "IO", Description = "Gets a human-readable file size")]
+        public static object PARSEBYSIZE([ExcelArgument("size", Name = "size", Description = "The input size, in bytes.")] double size)
+        {
+            try
+            {
+                string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+                int order = 0;
+                while (size >= 1024 && order < sizes.Length - 1)
+                {
+                    order++;
+                    size = size / 1024;
+                }
+
+                // Adjust the format string to your preferences. For example "{0:0.#}{1}" would
+                // show a single decimal place, and no space.
+                string result = String.Format("{0:0.##} {1}", size, sizes[order]);
+
+                return result;
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
         [ExcelFunction(Category = "IO", Description = "Returns the file name of the specified path string without the extension.")]
         public static object GETFILENAMEWTEXT([ExcelArgument("path", Name = "path", Description = "The path of the file")] string path)
         {
