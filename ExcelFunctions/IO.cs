@@ -79,7 +79,7 @@ namespace ExcelFunctions
         {
             try
             {
-                return File.GetCreationTime(path);
+                return System.IO.File.GetCreationTime(path);
             }
             catch
             {
@@ -92,7 +92,7 @@ namespace ExcelFunctions
         {
             try
             {
-                return File.GetLastWriteTime(path);
+                return System.IO.File.GetLastWriteTime(path);
             }
             catch
             {
@@ -253,11 +253,11 @@ namespace ExcelFunctions
             {
                 bool overrideDestination = Optional.Check(overrideDest, false);
                 // Ensure that the target does not exist.
-                if (File.Exists(destFileName))
+                if (System.IO.File.Exists(destFileName))
                 {
                     if (overrideDestination)
                     {
-                        File.Delete(destFileName);
+                        System.IO.File.Delete(destFileName);
                     }
                     else
                     {
@@ -266,7 +266,7 @@ namespace ExcelFunctions
                 }
 
                 // Move the file.
-                File.Move(sourceFileName, destFileName);
+                System.IO.File.Move(sourceFileName, destFileName);
                 return destFileName;
             }
             catch
@@ -286,8 +286,44 @@ namespace ExcelFunctions
                 bool overrideDestination = Optional.Check(overrideDest, false);
 
                 // Move the file.
-                File.Copy(sourceFileName, destFileName, overrideDestination);
+                System.IO.File.Copy(sourceFileName, destFileName, overrideDestination);
                 return destFileName;
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "IO", Description = "Opens a text file, reads all lines of the file, and then closes the file.")]
+        public static object READALLTEXT([ExcelArgument("path", Name = "path", Description = "The file to open for reading.")] string path)
+        {
+            try
+            {
+                return System.IO.File.ReadAllText(path);
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "IO", Description = "Opens a text file, reads all lines of the file, and then closes the file.")]
+        public static object READALLLINES([ExcelArgument("path", Name = "path", Description = "The file to open for reading.")] string path)
+        {
+            try
+            {
+                string[] lines = System.IO.File.ReadAllLines(path);
+
+                object[,] outputTable = new object[lines.Length, 1];
+
+                int l = 0;
+                foreach (object obj in lines)
+                {
+                    outputTable[l, 0] = obj;
+                    l++;
+                }
+                return outputTable;
             }
             catch
             {
