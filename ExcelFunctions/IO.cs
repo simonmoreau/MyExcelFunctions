@@ -331,6 +331,22 @@ namespace ExcelFunctions
             }
         }
 
+        [ExcelFunction(Category = "IO", Description = "Creates a new file, writes the specified string to the file, and then closes the file. If the target file already exists, it is overwritten.")]
+        public static object WRITEALLTEXT(
+            [ExcelArgument("path", Name = "path", Description = "The file to write to.")] string path,
+            [ExcelArgument("contents", Name = "contents", Description = "The string to write to the file.")] string contents)
+        {
+            try
+            {
+                System.IO.File.WriteAllText(path, contents);
+                return $"Text written to {path}";
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
         public static object SleepAsync(string ms)
         {
             return ExcelAsyncUtil.Run("SleepAsync", ms, delegate
