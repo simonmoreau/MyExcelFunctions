@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using System.Xml;
 using System.Reflection.Emit;
 using System.Data;
+using System.Collections;
 
 namespace ExcelFunctions.Services
 {
@@ -47,7 +48,8 @@ namespace ExcelFunctions.Services
                 }
             }
 
-            Type buildedType = BuildType(root);
+            Type buildedType = BuildType(root, "root");
+
 
             // Create a list of object of this type
             List<object> objects = new List<object>();
@@ -135,7 +137,7 @@ namespace ExcelFunctions.Services
                     target = Activator.CreateInstance(propertyToGet.PropertyType);
                     propertyToGet.SetValue(parentTarget, target);
                 }
-
+                
                 parentTarget = target;
             }
             PropertyInfo propertyToSet = parentTarget.GetType().GetProperty(bits.Last());
@@ -204,9 +206,9 @@ namespace ExcelFunctions.Services
             propertyBuilder.SetSetMethod(setPropMthdBldr);
         }
 
-        private static Type BuildType(Dictionary<string, object> fields)
+        private static Type BuildType(Dictionary<string, object> fields, string name)
         {
-            TypeBuilder tb = GetTypeBuilder("root");
+            TypeBuilder tb = GetTypeBuilder(name);
             ConstructorBuilder constructor = tb.DefineDefaultConstructor(MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
 
             foreach (KeyValuePair<string, object> field in fields)
@@ -218,8 +220,8 @@ namespace ExcelFunctions.Services
                 else
                 {
                     Dictionary<string, object> nestedType = (Dictionary<string, object>)field.Value;
-                    // Type genericListType = typeof(List<>).MakeGenericType(BuildType(nestedType));
-                    CreateProperty(tb, field.Key, BuildType(nestedType));
+                    // Type genericListType = typeof(List<>).MakeGenericType(BuildType(nestedType, field.Key));
+                    CreateProperty(tb, field.Key, BuildType(nestedType, field.Key));
                 }
             }
 
