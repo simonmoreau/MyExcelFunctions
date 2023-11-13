@@ -50,9 +50,38 @@ namespace ExcelFunctions.Services
 
             Type buildedType = BuildType(root, "root");
 
+            Dictionary<int,int> columnsRanks = new Dictionary<int,int>();
 
-            // Create a list of object of this type
-            List<object> objects = new List<object>();
+            int index = 0;
+            foreach (string columnName in columnsWithType.Keys)
+            {
+                int rank = 0;
+                if (columnName.Contains("."))
+                {
+                    rank = columnName.Count(f => f == '.');
+                }
+                columnsRanks.Add(index, rank);
+                index++;
+            }
+
+            List<List<object>> inputList = new List<List<object>>();
+
+            for (int i = 1; i < inputArray.GetLength(0); i++)
+            {
+                List<object> row = new List<object>();
+                for (int j = 0; j < inputArray.GetLength(1); j++)
+                {
+                    row.Add(inputArray[i,j]);
+                }
+
+                    inputList.Add(row);
+            }
+
+            IEnumerable<IGrouping<string, List<object>>> group = inputList.GroupBy(r => GroupingString(r, columnsRanks, 0));
+
+
+                // Create a list of object of this type
+                List<object> objects = new List<object>();
 
             for (int i = 1; i < inputArray.GetLength(0); i++)
             {
@@ -88,6 +117,25 @@ namespace ExcelFunctions.Services
             }
 
             return objects;
+        }
+
+        private static string GroupingString(List<object> row, Dictionary<int, int> columnsRanks, int rank)
+        {
+            string groupingString = "";
+            foreach (KeyValuePair<int,int> indexRank in columnsRanks)
+            {
+                if (indexRank.Value == rank)
+                {
+                    string value = row[indexRank.Key].ToString();
+                    if (row[indexRank.Key].GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
+                    {
+                        value = "";
+                    }
+                    groupingString = groupingString + value;
+                }
+            }
+
+            return groupingString;
         }
 
         private static Dictionary<string, Type> ListColumns(object[,] inputArray)
