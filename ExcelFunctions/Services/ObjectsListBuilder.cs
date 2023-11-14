@@ -10,6 +10,8 @@ using System.Xml;
 using System.Reflection.Emit;
 using System.Data;
 using System.Collections;
+using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace ExcelFunctions.Services
 {
@@ -29,7 +31,7 @@ namespace ExcelFunctions.Services
 
             foreach (IGrouping<string, Dictionary<string, object>> group in groups)
             {
-                
+                BuildHolder(group);
             }
             Dictionary<string, Type> columnsWithType = ListColumns(inputArray);
 
@@ -151,6 +153,57 @@ namespace ExcelFunctions.Services
 
 
             return objects;
+        }
+
+        private static PropertyHolder BuildHolder(IGrouping<string, Dictionary<string, object>> group)
+        {
+            PropertyHolder propertyHolder = new PropertyHolder();
+            Dictionary<string, List<Dictionary<string, object>>> subDataTree = new Dictionary<string, List<Dictionary<string, object>>>();
+
+            foreach (Dictionary<string, object> item in group)
+            {
+                foreach (KeyValuePair<string, object> item1 in item)
+                {
+                    if (item1.Value.GetType() == typeof(Dictionary<string, object>))
+                    {
+                        Dictionary<string, object> nestedItem = (Dictionary<string, object>)item1.Value;
+                        if (subDataTree.ContainsKey(item1.Key))
+                        {
+                            subDataTree[item1.Key].Add(nestedItem);
+                        }
+                        else
+                        {
+                            List<Dictionary<string, object>> nestedItems = new List<Dictionary<string, object>>();
+                            nestedItems.Add(nestedItem);
+                            subDataTree.Add(item1.Key, nestedItems);
+                        }
+                    }
+                    else
+                    {
+                        if (!propertyHolder.Fields.ContainsKey(item1.Key))
+                        {
+                            propertyHolder.Fields.Add(item1.Key, item1.Value);
+                        }
+                    }
+                }
+            }
+
+            foreach (KeyValuePair<string, List<Dictionary<string, object>>> propertySubDataTree in subDataTree)
+            {
+                IEnumerable<IGrouping<string, Dictionary<string, object>>> subGroups = propertySubDataTree.Value.GroupBy(d => GroupingString(d));
+
+                List<PropertyHolder> subPropertiesHolders = new List<PropertyHolder>();
+                foreach (IGrouping<string, Dictionary<string, object>> subGroup in subGroups)
+                {
+                    PropertyHolder nestedPropertyHolder = BuildHolder(subGroup);
+                    subPropertiesHolders.Add(nestedPropertyHolder);
+                }
+
+                propertyHolder.Properties.Add(propertySubDataTree.Key, subPropertiesHolders);
+            }
+
+
+            return propertyHolder;
         }
 
         private static List<Dictionary<string, object>> CreateDataTree(object[,] inputArray)
