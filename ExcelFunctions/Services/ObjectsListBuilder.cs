@@ -22,15 +22,15 @@ namespace ExcelFunctions.Services
 
             Dictionary<string, object> root = new Dictionary<string, object>();
 
-            foreach (var dotObject in columnsWithType)
+            foreach (KeyValuePair<string, Type> dotObject in columnsWithType)
             {
-                var hierarcy = dotObject.Key.Split('.');
+                string[] hierarcy = dotObject.Key.Split('.');
 
                 Dictionary<string, object> current = root;
 
                 for (int i = 0; i < hierarcy.Length; i++)
                 {
-                    var key = hierarcy[i];
+                    string key = hierarcy[i];
 
                     if (i == hierarcy.Length - 1) // Last key
                     {
@@ -50,7 +50,7 @@ namespace ExcelFunctions.Services
 
             Type buildedType = BuildType(root, "root");
 
-            Dictionary<int,int> columnsRanks = new Dictionary<int,int>();
+            Dictionary<int, int> columnsRanks = new Dictionary<int, int>();
 
             int index = 0;
             foreach (string columnName in columnsWithType.Keys)
@@ -64,38 +64,55 @@ namespace ExcelFunctions.Services
                 index++;
             }
 
-            List<List<object>> inputList = new List<List<object>>();
+            List<List<object>> inputLists = new List<List<object>>();
 
             for (int i = 1; i < inputArray.GetLength(0); i++)
             {
                 List<object> row = new List<object>();
                 for (int j = 0; j < inputArray.GetLength(1); j++)
                 {
-                    row.Add(inputArray[i,j]);
+                    row.Add(inputArray[i, j]);
                 }
 
-                    inputList.Add(row);
+                inputLists.Add(row);
             }
 
-            IEnumerable<IGrouping<string, List<object>>> group = inputList.GroupBy(r => GroupingString(r, columnsRanks, 0));
-
-
-                // Create a list of object of this type
-                List<object> objects = new List<object>();
-
-            for (int i = 1; i < inputArray.GetLength(0); i++)
+            int maxRank = columnsRanks.Values.Max();
+            for (int i = 0; i < maxRank; i++)
             {
-                object rowObject = Activator.CreateInstance(buildedType);
 
-                for (int j = 0; j < inputArray.GetLength(1); j++)
+            }
+            GroupInputRow(columnsRanks, inputLists);
+
+
+
+
+            Dictionary<string, object> rowObjects = new Dictionary<string, object>();
+
+            foreach (List<object> inputList in inputLists)
+            {
+                object rowObject = null;
+                string groupingKey = GroupingString(inputList, columnsRanks, 0);
+                if (rowObjects.ContainsKey(groupingKey))
+                {
+                    rowObject = rowObjects[groupingKey];
+                }
+                else
+                {
+                    rowObject = Activator.CreateInstance(buildedType);
+                    rowObjects.Add(groupingKey, rowObject);
+                }
+
+
+                for (int j = 0; j < inputList.Count; j++)
                 {
                     string propertyPath = columnsWithType.ElementAt(j).Key;
 
-                    if (GetNullableType(inputArray[i, j].GetType()) == columnsWithType.ElementAt(j).Value)
+                    if (GetNullableType(inputList[j].GetType()) == columnsWithType.ElementAt(j).Value)
                     {
-                        SetPropertyValue(rowObject, propertyPath, inputArray[i, j]);
+                        SetPropertyValue(rowObject, propertyPath, inputList[j]);
                     }
-                    else if (inputArray[i, j].GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
+                    else if (inputList[j].GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
                     {
                         SetPropertyValue(rowObject, propertyPath, null);
                     }
@@ -104,7 +121,7 @@ namespace ExcelFunctions.Services
                         object castedObject = null;
                         try
                         {
-                            castedObject = Convert.ChangeType(inputArray[i, j], columnsWithType.ElementAt(j).Value);
+                            castedObject = Convert.ChangeType(inputList[j], columnsWithType.ElementAt(j).Value);
                         }
                         catch
                         {
@@ -113,16 +130,80 @@ namespace ExcelFunctions.Services
                     }
                 }
 
-                objects.Add(rowObject);
             }
 
+            // Create a list of object of this type
+            List<object> objects = new List<object>();
+
+            objects.AddRange(rowObjects.Values);
+
+            //for (int i = 1; i < inputArray.GetLength(0); i++)
+            //{
+            //    object rowObject = Activator.CreateInstance(buildedType);
+
+            //    for (int j = 0; j < inputArray.GetLength(1); j++)
+            //    {
+            //        string propertyPath = columnsWithType.ElementAt(j).Key;
+
+            //        if (GetNullableType(inputArray[i, j].GetType()) == columnsWithType.ElementAt(j).Value)
+            //        {
+            //            SetPropertyValue(rowObject, propertyPath, inputArray[i, j]);
+            //        }
+            //        else if (inputArray[i, j].GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
+            //        {
+            //            SetPropertyValue(rowObject, propertyPath, null);
+            //        }
+            //        else
+            //        {
+            //            object castedObject = null;
+            //            try
+            //            {
+            //                castedObject = Convert.ChangeType(inputArray[i, j], columnsWithType.ElementAt(j).Value);
+            //            }
+            //            catch
+            //            {
+            //            }
+            //            SetPropertyValue(rowObject, propertyPath, castedObject);
+            //        }
+            //    }
+
+            //    objects.Add(rowObject);
+            //}
+
+
+
             return objects;
+        }
+
+        //private static Dictionary<List<ObjectGrouping>> GroupRows(Dictionary<string,List<object>> groupedRow, Dictionary<int, int> columnsRanks)
+        //{
+        //    IEnumerable<IGrouping<string, List<object>>> groups = groupedRow.Values.GroupBy(r => GroupingString(r, columnsRanks, 0));
+
+        //    foreach (IGrouping<string, List<object>> group in groups)
+        //    {
+        //        IEnumerable<IGrouping<string, List<object>>> test = group.GroupBy(r => GroupingString(r, columnsRanks, 1));
+        //    }
+        //}
+        private static void GroupInputRow(Dictionary<int, int> columnsRanks, List<List<object>> inputList)
+        {
+            IEnumerable<IGrouping<string, List<object>>> groups = inputList.GroupBy(r => GroupingString(r, columnsRanks, 0));
+
+            Dictionary<string, Dictionary<string, List<object>>> groupedRow = new Dictionary<string, Dictionary<string, List<object>>>();
+
+            foreach (IGrouping<string, List<object>> group in groups)
+            {
+                //ObjectGrouping objectGrouping = new ObjectGrouping();
+                //objectGrouping.Name = group.Key;
+                //objectGrouping.ObjectGroupings.Add(objectGrouping);
+                //groupedRow.Add(group.Key, GroupRows()
+                //IEnumerable < IGrouping<string, List<object>> > test = group.GroupBy(r => GroupingString(r, columnsRanks, 1));
+            }
         }
 
         private static string GroupingString(List<object> row, Dictionary<int, int> columnsRanks, int rank)
         {
             string groupingString = "";
-            foreach (KeyValuePair<int,int> indexRank in columnsRanks)
+            foreach (KeyValuePair<int, int> indexRank in columnsRanks)
             {
                 if (indexRank.Value == rank)
                 {
@@ -131,7 +212,7 @@ namespace ExcelFunctions.Services
                     {
                         value = "";
                     }
-                    groupingString = groupingString + value;
+                    groupingString = groupingString + ";" + value;
                 }
             }
 
@@ -185,7 +266,7 @@ namespace ExcelFunctions.Services
                     target = Activator.CreateInstance(propertyToGet.PropertyType);
                     propertyToGet.SetValue(parentTarget, target);
                 }
-                
+
                 parentTarget = target;
             }
             PropertyInfo propertyToSet = parentTarget.GetType().GetProperty(bits.Last());
@@ -204,8 +285,8 @@ namespace ExcelFunctions.Services
 
         private static TypeBuilder GetTypeBuilder(string typeSignature)
         {
-            var an = new AssemblyName(typeSignature);
-            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Guid.NewGuid().ToString()), AssemblyBuilderAccess.Run);
+            AssemblyName an = new AssemblyName(typeSignature);
+            AssemblyBuilder assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Guid.NewGuid().ToString()), AssemblyBuilderAccess.Run);
             ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule("MainModule");
             TypeBuilder tb = moduleBuilder.DefineType(typeSignature,
                     TypeAttributes.Public |
@@ -278,4 +359,13 @@ namespace ExcelFunctions.Services
         }
     }
 
+    public class ObjectGrouping
+    {
+        public ObjectGrouping()
+        {
+            ObjectGroupings = new List<ObjectGrouping>();
+        }
+        public string Name { get; set; }
+        public List<ObjectGrouping> ObjectGroupings { get; set; }
+    }
 }
