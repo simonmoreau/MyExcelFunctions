@@ -107,7 +107,7 @@ namespace ExcelFunctions.Services
                         propertyPath = properties.Key;
                     }
 
-                    ProcessProperty(property, rowObject, propertyPath, i, i);
+                    ProcessProperty(property, rowObject, propertyPath, i, index);
                     i++;
                 }
             }
