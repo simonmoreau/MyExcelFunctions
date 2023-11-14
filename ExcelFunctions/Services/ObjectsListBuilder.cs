@@ -73,95 +73,16 @@ namespace ExcelFunctions.Services
             {
                 object rowObject = Activator.CreateInstance(buildedType);
 
-                ProcessProperty(propertyHolder, rowObject, "");
+                ProcessProperty(propertyHolder, rowObject, "",0);
 
                 objects.Add(rowObject);
             }
-
-            //Dictionary<int, int> columnsRanks = new Dictionary<int, int>();
-
-            //int index = 0;
-            //foreach (string columnName in columnsWithType.Keys)
-            //{
-            //    int rank = 0;
-            //    if (columnName.Contains("."))
-            //    {
-            //        rank = columnName.Count(f => f == '.');
-            //    }
-            //    columnsRanks.Add(index, rank);
-            //    index++;
-            //}
-
-            //List<List<object>> inputLists = new List<List<object>>();
-
-            //for (int i = 1; i < inputArray.GetLength(0); i++)
-            //{
-            //    List<object> row = new List<object>();
-            //    for (int j = 0; j < inputArray.GetLength(1); j++)
-            //    {
-            //        row.Add(inputArray[i, j]);
-            //    }
-
-            //    inputLists.Add(row);
-            //}
-
-            //int maxRank = columnsRanks.Values.Max();
-            //for (int i = 0; i < maxRank; i++)
-            //{
-
-            //}
-            //GroupInputRow(columnsRanks, inputLists);
-
-            //Dictionary<string, object> rowGroups = new Dictionary<string, object>();
-
-            //Dictionary<string, object> rowObjects = new Dictionary<string, object>();
-
-            //foreach (List<object> inputList in inputLists)
-            //{
-            //    object rowObject = null;
-            //    string groupingKey = GroupingString(inputList, columnsRanks, 0);
-            //    if (rowObjects.ContainsKey(groupingKey))
-            //    {
-            //        rowObject = rowObjects[groupingKey];
-            //    }
-            //    else
-            //    {
-            //        rowObject = Activator.CreateInstance(buildedType);
-            //        rowObjects.Add(groupingKey, rowObject);
-            //    }
-
-
-            //    for (int j = 0; j < inputList.Count; j++)
-            //    {
-            //        string propertyPath = columnsWithType.ElementAt(j).Key;
-
-
-            //        else
-            //        {
-            //            object castedObject = null;
-            //            try
-            //            {
-            //                castedObject = Convert.ChangeType(inputList[j], columnsWithType.ElementAt(j).Value);
-            //            }
-            //            catch
-            //            {
-            //            }
-            //            SetPropertyValue(rowObject, propertyPath, castedObject);
-            //        }
-            //    }
-
-            //}
-
-            //// Create a list of object of this type
-            //List<object> objects = new List<object>();
-
-            //objects.AddRange(rowObjects.Values);
 
 
             return objects;
         }
 
-        private static void ProcessProperty(PropertyHolder propertyHolder, object rowObject, string basePropertyPath)
+        private static void ProcessProperty(PropertyHolder propertyHolder, object rowObject, string basePropertyPath, int index)
         {
             foreach (KeyValuePair<string, object> field in propertyHolder.Fields)
             {
@@ -171,12 +92,13 @@ namespace ExcelFunctions.Services
                     propertyPath = field.Key;
                 }
 
-                SetPropertyValue(rowObject, propertyPath, field.Value);
+                SetPropertyValue(rowObject, propertyPath, field.Value, index);
                 
             }
 
             foreach (KeyValuePair<string, List<PropertyHolder>> properties in propertyHolder.Properties)
             {
+                int i = 0;
                 foreach (PropertyHolder property in properties.Value)
                 {
                     string propertyPath = basePropertyPath + "." + properties.Key;
@@ -185,7 +107,8 @@ namespace ExcelFunctions.Services
                         propertyPath = properties.Key;
                     }
 
-                    ProcessProperty(property, rowObject, propertyPath);
+                    ProcessProperty(property, rowObject, propertyPath, i);
+                    i++;
                 }
             }
         }
@@ -386,7 +309,7 @@ namespace ExcelFunctions.Services
             return obj;
         }
 
-        private static void SetPropertyValue(object parentTarget, string compoundProperty, object value)
+        private static void SetPropertyValue(object parentTarget, string compoundProperty, object value, int index)
         {
             string[] bits = compoundProperty.Split('.');
             for (int i = 0; i < bits.Length - 1; i++)
@@ -407,12 +330,27 @@ namespace ExcelFunctions.Services
 
             if (IsList(parentTarget))
             {
-                // Add a new object to the list
-                Type type = parentTarget.GetType().GetGenericArguments()[0];
-                object objTemp = Activator.CreateInstance(type);
-                PropertyInfo propertyToSet = objTemp.GetType().GetProperty(bits.Last());
-                propertyToSet.SetValue(objTemp, value, null);
-                parentTarget.GetType().GetMethod("Add").Invoke(parentTarget, new[] { objTemp });
+                // Does an object exist at the given index
+                IList list = parentTarget as IList;
+                if (list.Count <= index)
+                {
+                    // Add a new object to the list
+                    Type type = parentTarget.GetType().GetGenericArguments()[0];
+                    object objTemp = Activator.CreateInstance(type);
+                    PropertyInfo propertyToSet = objTemp.GetType().GetProperty(bits.Last());
+                    propertyToSet.SetValue(objTemp, value, null);
+                    parentTarget.GetType().GetMethod("Add").Invoke(parentTarget, new[] { objTemp });
+                }
+                else
+                {
+                    // Add the property to the given object in the list
+                    object objTemp = list[index];
+                    PropertyInfo propertyToSet = objTemp.GetType().GetProperty(bits.Last());
+                    propertyToSet.SetValue(objTemp, value, null);
+                }
+                
+
+
             }
             else
             {
