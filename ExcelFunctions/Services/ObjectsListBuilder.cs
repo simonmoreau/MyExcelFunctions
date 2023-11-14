@@ -29,10 +29,13 @@ namespace ExcelFunctions.Services
 
             IEnumerable<IGrouping<string, Dictionary<string, object>>> groups = dataTree.GroupBy(d => GroupingString(d));
 
+            List<PropertyHolder> propertyHolders = new List<PropertyHolder>();
+
             foreach (IGrouping<string, Dictionary<string, object>> group in groups)
             {
-                BuildHolder(group);
+                propertyHolders.Add(BuildHolder(group));
             }
+
             Dictionary<string, Type> columnsWithType = ListColumns(inputArray);
 
             Dictionary<string, object> root = new Dictionary<string, object>();
@@ -64,95 +67,127 @@ namespace ExcelFunctions.Services
             }
 
             Type buildedType = BuildType(root, "root");
-
-            Dictionary<int, int> columnsRanks = new Dictionary<int, int>();
-
-            int index = 0;
-            foreach (string columnName in columnsWithType.Keys)
-            {
-                int rank = 0;
-                if (columnName.Contains("."))
-                {
-                    rank = columnName.Count(f => f == '.');
-                }
-                columnsRanks.Add(index, rank);
-                index++;
-            }
-
-            List<List<object>> inputLists = new List<List<object>>();
-
-            for (int i = 1; i < inputArray.GetLength(0); i++)
-            {
-                List<object> row = new List<object>();
-                for (int j = 0; j < inputArray.GetLength(1); j++)
-                {
-                    row.Add(inputArray[i, j]);
-                }
-
-                inputLists.Add(row);
-            }
-
-            int maxRank = columnsRanks.Values.Max();
-            for (int i = 0; i < maxRank; i++)
-            {
-
-            }
-            GroupInputRow(columnsRanks, inputLists);
-
-            Dictionary<string, object> rowGroups = new Dictionary<string, object>();
-
-            Dictionary<string, object> rowObjects = new Dictionary<string, object>();
-
-            foreach (List<object> inputList in inputLists)
-            {
-                object rowObject = null;
-                string groupingKey = GroupingString(inputList, columnsRanks, 0);
-                if (rowObjects.ContainsKey(groupingKey))
-                {
-                    rowObject = rowObjects[groupingKey];
-                }
-                else
-                {
-                    rowObject = Activator.CreateInstance(buildedType);
-                    rowObjects.Add(groupingKey, rowObject);
-                }
-
-
-                for (int j = 0; j < inputList.Count; j++)
-                {
-                    string propertyPath = columnsWithType.ElementAt(j).Key;
-
-                    if (GetNullableType(inputList[j].GetType()) == columnsWithType.ElementAt(j).Value)
-                    {
-                        SetPropertyValue(rowObject, propertyPath, inputList[j]);
-                    }
-                    else if (inputList[j].GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
-                    {
-                        SetPropertyValue(rowObject, propertyPath, null);
-                    }
-                    else
-                    {
-                        object castedObject = null;
-                        try
-                        {
-                            castedObject = Convert.ChangeType(inputList[j], columnsWithType.ElementAt(j).Value);
-                        }
-                        catch
-                        {
-                        }
-                        SetPropertyValue(rowObject, propertyPath, castedObject);
-                    }
-                }
-
-            }
-
-            // Create a list of object of this type
             List<object> objects = new List<object>();
 
-            objects.AddRange(rowObjects.Values);
+            foreach (PropertyHolder propertyHolder in propertyHolders)
+            {
+                object rowObject = Activator.CreateInstance(buildedType);
+
+                ProcessProperty(propertyHolder, rowObject, "");
+
+                objects.Add(rowObject);
+            }
+
+            //Dictionary<int, int> columnsRanks = new Dictionary<int, int>();
+
+            //int index = 0;
+            //foreach (string columnName in columnsWithType.Keys)
+            //{
+            //    int rank = 0;
+            //    if (columnName.Contains("."))
+            //    {
+            //        rank = columnName.Count(f => f == '.');
+            //    }
+            //    columnsRanks.Add(index, rank);
+            //    index++;
+            //}
+
+            //List<List<object>> inputLists = new List<List<object>>();
+
+            //for (int i = 1; i < inputArray.GetLength(0); i++)
+            //{
+            //    List<object> row = new List<object>();
+            //    for (int j = 0; j < inputArray.GetLength(1); j++)
+            //    {
+            //        row.Add(inputArray[i, j]);
+            //    }
+
+            //    inputLists.Add(row);
+            //}
+
+            //int maxRank = columnsRanks.Values.Max();
+            //for (int i = 0; i < maxRank; i++)
+            //{
+
+            //}
+            //GroupInputRow(columnsRanks, inputLists);
+
+            //Dictionary<string, object> rowGroups = new Dictionary<string, object>();
+
+            //Dictionary<string, object> rowObjects = new Dictionary<string, object>();
+
+            //foreach (List<object> inputList in inputLists)
+            //{
+            //    object rowObject = null;
+            //    string groupingKey = GroupingString(inputList, columnsRanks, 0);
+            //    if (rowObjects.ContainsKey(groupingKey))
+            //    {
+            //        rowObject = rowObjects[groupingKey];
+            //    }
+            //    else
+            //    {
+            //        rowObject = Activator.CreateInstance(buildedType);
+            //        rowObjects.Add(groupingKey, rowObject);
+            //    }
+
+
+            //    for (int j = 0; j < inputList.Count; j++)
+            //    {
+            //        string propertyPath = columnsWithType.ElementAt(j).Key;
+
+
+            //        else
+            //        {
+            //            object castedObject = null;
+            //            try
+            //            {
+            //                castedObject = Convert.ChangeType(inputList[j], columnsWithType.ElementAt(j).Value);
+            //            }
+            //            catch
+            //            {
+            //            }
+            //            SetPropertyValue(rowObject, propertyPath, castedObject);
+            //        }
+            //    }
+
+            //}
+
+            //// Create a list of object of this type
+            //List<object> objects = new List<object>();
+
+            //objects.AddRange(rowObjects.Values);
 
 
             return objects;
+        }
+
+        private static void ProcessProperty(PropertyHolder propertyHolder, object rowObject, string basePropertyPath)
+        {
+            foreach (KeyValuePair<string, object> field in propertyHolder.Fields)
+            {
+                string propertyPath = basePropertyPath + "." + field.Key;
+                if (basePropertyPath == "")
+                {
+                    propertyPath = field.Key;
+                }
+
+                SetPropertyValue(rowObject, propertyPath, field.Value);
+                
+            }
+
+            foreach (KeyValuePair<string, List<PropertyHolder>> properties in propertyHolder.Properties)
+            {
+                foreach (PropertyHolder property in properties.Value)
+                {
+                    string propertyPath = basePropertyPath + "." + properties.Key;
+                    if (basePropertyPath == "")
+                    {
+                        propertyPath = properties.Key;
+                    }
+
+                    ProcessProperty(property, rowObject, propertyPath);
+                }
+            }
         }
 
         private static PropertyHolder BuildHolder(IGrouping<string, Dictionary<string, object>> group)
@@ -382,7 +417,17 @@ namespace ExcelFunctions.Services
             else
             {
                 PropertyInfo propertyToSet = parentTarget.GetType().GetProperty(bits.Last());
-                propertyToSet.SetValue(parentTarget, value, null);
+
+                if (value.GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
+                {
+                    propertyToSet.SetValue(parentTarget, null, null);
+                }
+                else
+                {
+                    propertyToSet.SetValue(parentTarget, value, null);
+                }
+
+                
             }
 
         }
