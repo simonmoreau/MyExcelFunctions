@@ -73,7 +73,7 @@ namespace ExcelFunctions.Services
             {
                 object rowObject = Activator.CreateInstance(buildedType);
 
-                ProcessProperty(propertyHolder, rowObject, "",0);
+                ProcessProperty(propertyHolder, rowObject, "",0,0);
 
                 objects.Add(rowObject);
             }
@@ -82,7 +82,7 @@ namespace ExcelFunctions.Services
             return objects;
         }
 
-        private static void ProcessProperty(PropertyHolder propertyHolder, object rowObject, string basePropertyPath, int index)
+        private static void ProcessProperty(PropertyHolder propertyHolder, object rowObject, string basePropertyPath, int index, int parentRank)
         {
             foreach (KeyValuePair<string, object> field in propertyHolder.Fields)
             {
@@ -92,7 +92,7 @@ namespace ExcelFunctions.Services
                     propertyPath = field.Key;
                 }
 
-                SetPropertyValue(rowObject, propertyPath, field.Value, index);
+                SetPropertyValue(rowObject, propertyPath, field.Value, index, parentRank);
                 
             }
 
@@ -107,7 +107,7 @@ namespace ExcelFunctions.Services
                         propertyPath = properties.Key;
                     }
 
-                    ProcessProperty(property, rowObject, propertyPath, i);
+                    ProcessProperty(property, rowObject, propertyPath, i, i);
                     i++;
                 }
             }
@@ -309,11 +309,17 @@ namespace ExcelFunctions.Services
             return obj;
         }
 
-        private static void SetPropertyValue(object parentTarget, string compoundProperty, object value, int index)
+        private static void SetPropertyValue(object parentTarget, string compoundProperty, object value, int index, int parentRank)
         {
             string[] bits = compoundProperty.Split('.');
             for (int i = 0; i < bits.Length - 1; i++)
             {
+                if (IsList(parentTarget))
+                {
+                    IList list = parentTarget as IList;
+                    parentTarget = list[parentRank];
+                }
+
                 PropertyInfo propertyToGet = parentTarget.GetType().GetProperty(bits[i]);
                 if (propertyToGet == null) { return; }
                 object target = propertyToGet.GetValue(parentTarget, null);
