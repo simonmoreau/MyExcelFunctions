@@ -13,11 +13,24 @@ using System.Collections;
 
 namespace ExcelFunctions.Services
 {
+    internal class PropertyHolder
+    {
+        public Dictionary<string,object> Fields = new Dictionary<string,object>();
+        public Dictionary<string,List<PropertyHolder>> Properties = new Dictionary<string,List<PropertyHolder>>();
+    }
     internal class ObjectsListBuilder
     {
 
         public static List<object> BuilObjectList(object[,] inputArray)
         {
+            List<Dictionary<string, object>> dataTree = CreateDataTree(inputArray);
+
+            IEnumerable<IGrouping<string, Dictionary<string, object>>> groups = dataTree.GroupBy(d => GroupingString(d));
+
+            foreach (IGrouping<string, Dictionary<string, object>> group in groups)
+            {
+                
+            }
             Dictionary<string, Type> columnsWithType = ListColumns(inputArray);
 
             Dictionary<string, object> root = new Dictionary<string, object>();
@@ -84,8 +97,7 @@ namespace ExcelFunctions.Services
             }
             GroupInputRow(columnsRanks, inputLists);
 
-
-
+            Dictionary<string, object> rowGroups = new Dictionary<string, object>();
 
             Dictionary<string, object> rowObjects = new Dictionary<string, object>();
 
@@ -137,53 +149,67 @@ namespace ExcelFunctions.Services
 
             objects.AddRange(rowObjects.Values);
 
-            //for (int i = 1; i < inputArray.GetLength(0); i++)
-            //{
-            //    object rowObject = Activator.CreateInstance(buildedType);
-
-            //    for (int j = 0; j < inputArray.GetLength(1); j++)
-            //    {
-            //        string propertyPath = columnsWithType.ElementAt(j).Key;
-
-            //        if (GetNullableType(inputArray[i, j].GetType()) == columnsWithType.ElementAt(j).Value)
-            //        {
-            //            SetPropertyValue(rowObject, propertyPath, inputArray[i, j]);
-            //        }
-            //        else if (inputArray[i, j].GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
-            //        {
-            //            SetPropertyValue(rowObject, propertyPath, null);
-            //        }
-            //        else
-            //        {
-            //            object castedObject = null;
-            //            try
-            //            {
-            //                castedObject = Convert.ChangeType(inputArray[i, j], columnsWithType.ElementAt(j).Value);
-            //            }
-            //            catch
-            //            {
-            //            }
-            //            SetPropertyValue(rowObject, propertyPath, castedObject);
-            //        }
-            //    }
-
-            //    objects.Add(rowObject);
-            //}
-
-
 
             return objects;
         }
 
-        //private static Dictionary<List<ObjectGrouping>> GroupRows(Dictionary<string,List<object>> groupedRow, Dictionary<int, int> columnsRanks)
-        //{
-        //    IEnumerable<IGrouping<string, List<object>>> groups = groupedRow.Values.GroupBy(r => GroupingString(r, columnsRanks, 0));
+        private static List<Dictionary<string, object>> CreateDataTree(object[,] inputArray)
+        {
 
-        //    foreach (IGrouping<string, List<object>> group in groups)
-        //    {
-        //        IEnumerable<IGrouping<string, List<object>>> test = group.GroupBy(r => GroupingString(r, columnsRanks, 1));
-        //    }
-        //}
+            string[] headers = Enumerable.Range(0, inputArray.GetLength(1))
+                .Select(x => inputArray[0, x].ToString())
+                .ToArray();
+
+            List<Dictionary<string, object>> classInfoList = new List<Dictionary<string, object>>();
+
+            for (int i = 1; i < inputArray.GetLength(0); i++)
+            {
+                object[] data = Enumerable.Range(0, inputArray.GetLength(1))
+                .Select(x => inputArray[i, x])
+                .ToArray();
+
+                Dictionary<string, object> classInfo = new Dictionary<string, object>();
+
+                for (int j = 0; j < headers.Length; j++)
+                {
+                    string header = headers[j];
+                    object value = data[j];
+
+                    string[] nestedHeaders = header.Split('.');
+                    if (nestedHeaders.Length > 1)
+                    {
+                        Dictionary<string, object> nestedDict = new Dictionary<string, object>();
+                        Dictionary<string, object> currentDict = classInfo;
+
+                        for (int k = 0; k < nestedHeaders.Length - 1; k++)
+                        {
+                            string nestedHeader = nestedHeaders[k];
+                            if (!currentDict.ContainsKey(nestedHeader))
+                            {
+                                Dictionary<string, object> newDict = new Dictionary<string, object>();
+                                currentDict[nestedHeader] = newDict;
+                                currentDict = newDict;
+                            }
+                            else
+                            {
+                                currentDict = (Dictionary<string, object>)currentDict[nestedHeader];
+                            }
+                        }
+
+                        currentDict[nestedHeaders.Last()] = value;
+                    }
+                    else
+                    {
+                        classInfo[header] = value;
+                    }
+                }
+
+                classInfoList.Add(classInfo);
+            }
+
+            return classInfoList;
+        }
+
         private static void GroupInputRow(Dictionary<int, int> columnsRanks, List<List<object>> inputList)
         {
             IEnumerable<IGrouping<string, List<object>>> groups = inputList.GroupBy(r => GroupingString(r, columnsRanks, 0));
@@ -218,6 +244,26 @@ namespace ExcelFunctions.Services
 
             return groupingString;
         }
+        private static string GroupingString(Dictionary<string, object> dictionary)
+        {
+            string groupingString = "";
+            foreach (KeyValuePair<string, object> keyValue in dictionary)
+            {
+                if (keyValue.Value.GetType() != typeof(Dictionary<string, object>))
+                {
+                    string value = keyValue.Value.ToString();
+                    if (keyValue.Value.GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
+                    {
+                        value = "";
+                    }
+                    groupingString = groupingString + ";" + value;
+                }
+            }
+
+            return groupingString;
+        }
+
+        
 
         private static Dictionary<string, Type> ListColumns(object[,] inputArray)
         {
@@ -258,19 +304,34 @@ namespace ExcelFunctions.Services
             for (int i = 0; i < bits.Length - 1; i++)
             {
                 PropertyInfo propertyToGet = parentTarget.GetType().GetProperty(bits[i]);
-
+                if (propertyToGet == null) { return; }
                 object target = propertyToGet.GetValue(parentTarget, null);
 
                 if (target == null)
                 {
+                    // Create a new list of object to be added to the parent object
                     target = Activator.CreateInstance(propertyToGet.PropertyType);
                     propertyToGet.SetValue(parentTarget, target);
                 }
 
                 parentTarget = target;
             }
-            PropertyInfo propertyToSet = parentTarget.GetType().GetProperty(bits.Last());
-            propertyToSet.SetValue(parentTarget, value, null);
+
+            if (IsList(parentTarget))
+            {
+                // Add a new object to the list
+                Type type = parentTarget.GetType().GetGenericArguments()[0];
+                object objTemp = Activator.CreateInstance(type);
+                PropertyInfo propertyToSet = objTemp.GetType().GetProperty(bits.Last());
+                propertyToSet.SetValue(objTemp, value, null);
+                parentTarget.GetType().GetMethod("Add").Invoke(parentTarget, new[] { objTemp });
+            }
+            else
+            {
+                PropertyInfo propertyToSet = parentTarget.GetType().GetProperty(bits.Last());
+                propertyToSet.SetValue(parentTarget, value, null);
+            }
+
         }
 
         private static Type GetNullableType(Type type)
@@ -281,6 +342,14 @@ namespace ExcelFunctions.Services
                 return typeof(Nullable<>).MakeGenericType(type);
             else
                 return type;
+        }
+
+        public static bool IsList(object o)
+        {
+            if (o == null) return false;
+            return o is IList &&
+                   o.GetType().IsGenericType &&
+                   o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
         }
 
         private static TypeBuilder GetTypeBuilder(string typeSignature)
@@ -349,8 +418,8 @@ namespace ExcelFunctions.Services
                 else
                 {
                     Dictionary<string, object> nestedType = (Dictionary<string, object>)field.Value;
-                    // Type genericListType = typeof(List<>).MakeGenericType(BuildType(nestedType, field.Key));
-                    CreateProperty(tb, field.Key, BuildType(nestedType, field.Key));
+                    Type genericListType = typeof(List<>).MakeGenericType(BuildType(nestedType, field.Key));
+                    CreateProperty(tb, field.Key, genericListType);
                 }
             }
 
