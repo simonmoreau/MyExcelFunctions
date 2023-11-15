@@ -265,6 +265,11 @@ namespace ExcelFunctions.Services
                     rowIndex++;
                 }
 
+                if (fieldType.FullName == "ExcelDna.Integration.ExcelEmpty")
+                {
+                    fieldType = typeof(string);
+                }
+
                 columnsWithType.Add(name, fieldType);
             }
 
