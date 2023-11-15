@@ -73,7 +73,8 @@ namespace ExcelFunctions.Services
             {
                 object rowObject = Activator.CreateInstance(buildedType);
 
-                ProcessProperty(propertyHolder, rowObject, "",0,0);
+                int[] indexes = new int[columnsWithType.Count];
+                ProcessProperty(propertyHolder, rowObject, "", indexes, 0);
 
                 objects.Add(rowObject);
             }
@@ -82,7 +83,7 @@ namespace ExcelFunctions.Services
             return objects;
         }
 
-        private static void ProcessProperty(PropertyHolder propertyHolder, object rowObject, string basePropertyPath, int index, int parentRank)
+        private static void ProcessProperty(PropertyHolder propertyHolder, object rowObject, string basePropertyPath, int[] indexes, int rank)
         {
             foreach (KeyValuePair<string, object> field in propertyHolder.Fields)
             {
@@ -92,7 +93,7 @@ namespace ExcelFunctions.Services
                     propertyPath = field.Key;
                 }
 
-                SetPropertyValue(rowObject, propertyPath, field.Value, index, parentRank);
+                SetPropertyValue(rowObject, propertyPath, field.Value, indexes, rank);
                 
             }
 
@@ -107,10 +108,14 @@ namespace ExcelFunctions.Services
                         propertyPath = properties.Key;
                     }
 
-                    ProcessProperty(property, rowObject, propertyPath, i, index);
+                    indexes[rank + 1] = i;
+
+                    ProcessProperty(property, rowObject, propertyPath, indexes, rank + 1);
                     i++;
                 }
             }
+
+            
         }
 
         private static PropertyHolder BuildHolder(IGrouping<string, Dictionary<string, object>> group)
@@ -309,15 +314,18 @@ namespace ExcelFunctions.Services
             return obj;
         }
 
-        private static void SetPropertyValue(object parentTarget, string compoundProperty, object value, int index, int parentRank)
+        private static void SetPropertyValue(object parentTarget, string compoundProperty, object value, int[] indexes, int rank)
         {
             string[] bits = compoundProperty.Split('.');
+            int pathLenght = bits.Length;
+
             for (int i = 0; i < bits.Length - 1; i++)
             {
                 if (IsList(parentTarget))
                 {
                     IList list = parentTarget as IList;
-                    parentTarget = list[parentRank];
+                    int parentIndex = indexes[i];
+                    parentTarget = list[parentIndex];
                 }
 
                 PropertyInfo propertyToGet = parentTarget.GetType().GetProperty(bits[i]);
@@ -338,7 +346,7 @@ namespace ExcelFunctions.Services
             {
                 // Does an object exist at the given index
                 IList list = parentTarget as IList;
-                if (list.Count <= index)
+                if (list.Count <= indexes[rank])
                 {
                     // Add a new object to the list
                     Type type = parentTarget.GetType().GetGenericArguments()[0];
@@ -350,7 +358,7 @@ namespace ExcelFunctions.Services
                 else
                 {
                     // Add the property to the given object in the list
-                    object objTemp = list[index];
+                    object objTemp = list[indexes[rank]];
                     PropertyInfo propertyToSet = objTemp.GetType().GetProperty(bits.Last());
                     propertyToSet.SetValue(objTemp, value, null);
                 }
