@@ -5,7 +5,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+
+  <PropertyGroup>
+    <ExcelDnaAllowPackageReferenceProjectStyle>true</ExcelDnaAllowPackageReferenceProjectStyle>
+    <ExcelAddInInclude>Fluid.dll;Microsoft.Extensions.FileProviders.Abstractions.dll;Microsoft.Extensions.Primitives.dll;Parlot.dll;TimeZoneConverter.dll</ExcelAddInInclude>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="ExcelDna.Addin" Version="1.6.0" />
+    <PackageReference Include="Fluid.Core" Version="2.5.0" />
   </ItemGroup>
 </Project>
