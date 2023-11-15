@@ -226,40 +226,6 @@ namespace ExcelFunctions.Services
             return classInfoList;
         }
 
-        private static void GroupInputRow(Dictionary<int, int> columnsRanks, List<List<object>> inputList)
-        {
-            IEnumerable<IGrouping<string, List<object>>> groups = inputList.GroupBy(r => GroupingString(r, columnsRanks, 0));
-
-            Dictionary<string, Dictionary<string, List<object>>> groupedRow = new Dictionary<string, Dictionary<string, List<object>>>();
-
-            foreach (IGrouping<string, List<object>> group in groups)
-            {
-                //ObjectGrouping objectGrouping = new ObjectGrouping();
-                //objectGrouping.Name = group.Key;
-                //objectGrouping.ObjectGroupings.Add(objectGrouping);
-                //groupedRow.Add(group.Key, GroupRows()
-                //IEnumerable < IGrouping<string, List<object>> > test = group.GroupBy(r => GroupingString(r, columnsRanks, 1));
-            }
-        }
-
-        private static string GroupingString(List<object> row, Dictionary<int, int> columnsRanks, int rank)
-        {
-            string groupingString = "";
-            foreach (KeyValuePair<int, int> indexRank in columnsRanks)
-            {
-                if (indexRank.Value == rank)
-                {
-                    string value = row[indexRank.Key].ToString();
-                    if (row[indexRank.Key].GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
-                    {
-                        value = "";
-                    }
-                    groupingString = groupingString + ";" + value;
-                }
-            }
-
-            return groupingString;
-        }
         private static string GroupingString(Dictionary<string, object> dictionary)
         {
             string groupingString = "";
@@ -303,15 +269,6 @@ namespace ExcelFunctions.Services
             }
 
             return columnsWithType;
-        }
-
-        private static object GetPropertyValue(object obj, string propertyName)
-        {
-            foreach (PropertyInfo propertyInfo in propertyName.Split('.').Select(s => obj.GetType().GetProperty(s)))
-            {
-                obj = propertyInfo.GetValue(obj, null);
-            }
-            return obj;
         }
 
         private static void SetPropertyValue(object parentTarget, string compoundProperty, object value, int[] indexes, int rank)
@@ -478,13 +435,4 @@ namespace ExcelFunctions.Services
         }
     }
 
-    public class ObjectGrouping
-    {
-        public ObjectGrouping()
-        {
-            ObjectGroupings = new List<ObjectGrouping>();
-        }
-        public string Name { get; set; }
-        public List<ObjectGrouping> ObjectGroupings { get; set; }
-    }
 }
