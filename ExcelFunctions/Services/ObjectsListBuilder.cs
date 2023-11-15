@@ -23,7 +23,7 @@ namespace ExcelFunctions.Services
     internal class ObjectsListBuilder
     {
 
-        public static List<object> BuilObjectList(object[,] inputArray)
+        public static List<object> BuilObjectList(object[,] inputArray, out Type buildedType)
         {
             List<Dictionary<string, object>> dataTree = CreateDataTree(inputArray);
 
@@ -66,7 +66,7 @@ namespace ExcelFunctions.Services
                 }
             }
 
-            Type buildedType = BuildType(root, "root");
+            buildedType = BuildType(root, "root");
             List<object> objects = new List<object>();
 
             foreach (PropertyHolder propertyHolder in propertyHolders)

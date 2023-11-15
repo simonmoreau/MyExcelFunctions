@@ -14,7 +14,7 @@ namespace ExcelFunctions.XML
     public static class XML
     {
         [ExcelFunction(Category = "My functions", Description = "Convert a range to an XML string.", HelpTopic = "Convert a range to an XML string. The first line are the fields of the XML file")]
-        public static object XMLSERIALIZE(
+        public static object XMLSERIALIZERANGE(
 [ExcelArgument("table", Name = "table", Description = "The table to convert to XML")] object values,
 [ExcelArgument("Name", Name = "Name", Description = "The name of each row")] object rowName)
         {
