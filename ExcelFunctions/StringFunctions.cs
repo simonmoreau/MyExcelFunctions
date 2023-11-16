@@ -3,6 +3,7 @@ using ExcelFunctions.Services;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace ExcelFunctions
 {
@@ -363,6 +364,35 @@ namespace ExcelFunctions
                 texte = texte.Trim(' ');
                 // Ajoute une majuscule au début
                 return texte.First().ToString().ToUpper() + texte.Substring(1);
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "String", Description = "Converts the specified name to CamelCase.", HelpTopic = "Converts the specified name to CamelCase.")]
+        public static object CAMELCASE(
+[ExcelArgument("name", Name = "name", Description = "The name to convert.")] string name)
+        {
+            try
+            {
+                return System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(name);
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "String", Description = "Converts the specified name to CamelCase.", HelpTopic = "Converts the specified name to CamelCase.")]
+        public static object TITLECASE(
+[ExcelArgument("name", Name = "name", Description = "The name to convert.")] string name)
+        {
+            try
+            {
+                TextInfo ti = CultureInfo.CurrentCulture.TextInfo;
+                return ti.ToTitleCase(name);
             }
             catch
             {
