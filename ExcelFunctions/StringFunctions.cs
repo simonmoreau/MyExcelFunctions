@@ -1,5 +1,7 @@
 ﻿using ExcelDna.Integration;
 using ExcelFunctions.Services;
+using FuzzySharp;
+using System.Data.Common;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -243,6 +245,45 @@ namespace ExcelFunctions
                     }
 
                     return textReturn;
+
+                }
+                catch (Exception ex)
+                {
+                    return new object[,] { { ExcelDna.Integration.ExcelError.ExcelErrorNA } };
+                }
+            }
+            else
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+
+        }
+
+        [ExcelFunction(Category = "String", Description = "Replace string in text based on an array.", HelpTopic = "Replace string in text based on an array.")]
+        public static object FUZZYLOOKUP(
+[ExcelArgument("choices", Name = "choices", Description = "An array of string to look into")] object choices,
+[ExcelArgument("text", Name = "text", Description = "The text to search")] string text,
+[ExcelArgument("[threshold]", Name = "[threshold]", Description = "The minimun score to get a match.")] object threshold)
+        {
+            if (choices is object[,])
+            {
+                try
+                {
+                    int thresholdValue = Optional.Check(threshold, 1);
+
+                    object[,] inputArray = (object[,])choices;
+                    string?[] inputColumn = Enumerable.Range(0, inputArray.GetLength(0)).Select(x => Convert.ToString(inputArray[x, 0])).ToArray();
+
+                    FuzzySharp.Extractor.ExtractedResult<string> extractedResult = Process.ExtractOne(text, inputColumn);
+
+                    if (extractedResult.Score > thresholdValue)
+                    {
+                        return extractedResult.Value;
+                    }
+                    else
+                    {
+                        return new object[,] { { ExcelDna.Integration.ExcelError.ExcelErrorNA } };
+                    }
 
                 }
                 catch (Exception ex)

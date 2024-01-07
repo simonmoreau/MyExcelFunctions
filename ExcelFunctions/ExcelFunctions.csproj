@@ -9,11 +9,12 @@
 
   <PropertyGroup>
     <ExcelDnaAllowPackageReferenceProjectStyle>true</ExcelDnaAllowPackageReferenceProjectStyle>
-    <ExcelAddInInclude>Fluid.dll;Microsoft.Extensions.FileProviders.Abstractions.dll;Microsoft.Extensions.Primitives.dll;Parlot.dll;TimeZoneConverter.dll</ExcelAddInInclude>
+    <ExcelAddInInclude>FuzzySharp.dll;Fluid.dll;Microsoft.Extensions.FileProviders.Abstractions.dll;Microsoft.Extensions.Primitives.dll;Parlot.dll;TimeZoneConverter.dll</ExcelAddInInclude>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="ExcelDna.Addin" Version="1.6.0" />
     <PackageReference Include="Fluid.Core" Version="2.5.0" />
+    <PackageReference Include="FuzzySharp" Version="2.0.2" />
   </ItemGroup>
 </Project>

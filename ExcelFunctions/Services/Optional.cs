@@ -51,6 +51,16 @@ namespace ExcelFunctions.Services
 
         }
 
+        internal static int Check(object arg, int defaultValue)
+        {
+            if (arg is double)
+                return Convert.ToInt16(arg);
+            else if (arg.GetType().Name == typeof(ExcelMissing).Name )
+                return defaultValue;
+            else
+                throw new ArgumentException();  // Will return #VALUE to Excel
+        }
+
         internal static bool Check(object arg, bool defaultValue)
         {
             if (arg is bool)
