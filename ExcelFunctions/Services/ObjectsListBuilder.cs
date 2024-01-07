@@ -322,7 +322,22 @@ namespace ExcelFunctions.Services
                     // Add the property to the given object in the list
                     object objTemp = list[indexes[rank]];
                     PropertyInfo propertyToSet = objTemp.GetType().GetProperty(bits.Last());
-                    propertyToSet.SetValue(objTemp, value, null);
+
+                    if (value.GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
+                    {
+                        propertyToSet.SetValue(objTemp, null, null);
+                    }
+                    else
+                    {
+                        if (value.GetType() == typeof(string) && propertyToSet.PropertyType != typeof(string))
+                        {
+                            propertyToSet.SetValue(objTemp, null, null);
+                        }
+                        else
+                        {
+                            propertyToSet.SetValue(objTemp, value, null);
+                        }
+                    }
                 }
                 
 
