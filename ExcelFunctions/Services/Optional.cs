@@ -13,7 +13,7 @@ namespace ExcelFunctions.Services
         {
             if (arg is string)
                 return (string)arg;
-            else if (arg is ExcelMissing)
+            else if (arg.GetType().Name == typeof(ExcelMissing).Name)
                 return defaultValue;
             else
                 return arg.ToString();  // Or whatever you want to do here....

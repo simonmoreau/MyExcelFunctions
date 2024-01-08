@@ -284,7 +284,6 @@ namespace ExcelFunctions
                     {
                         return new object[,] { { ExcelDna.Integration.ExcelError.ExcelErrorNA } };
                     }
-
                 }
                 catch (Exception ex)
                 {
