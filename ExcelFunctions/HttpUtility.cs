@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using ExcelDna.Registration.Utils;
 using System.Net;
 using System;
+using System.IO;
 
 namespace ExcelFunctions
 {
@@ -118,22 +119,54 @@ namespace ExcelFunctions
 
         [ExcelFunction(Category = "HttpUtility", Description = "Downloads the resource with the specified URI to a local file.")]
         public static object DOWNLOADFILE(
-[ExcelArgument("uri", Name = "uri", Description = "The URI specified as a String, from which to download data.")] string uri,
-[ExcelArgument("fileName", Name = "fileName", Description = "The name of the local file that is to receive the data.")] string fileName)
+[ExcelArgument("uri", Name = "uri", Description = "The URI specified as a String, from which to download data.")] object uri,
+[ExcelArgument("directory", Name = "directory", Description = "The directory to save the data.")] string directory,
+[ExcelArgument("[fileName]", Name = "[fileName]", Description = "The name of the local file that is to receive the data.")] object fileName)
         {
             try
             {
                 var functionName = nameof(DOWNLOADFILE);
-                var parameters = new object[] { uri, fileName };
+                var parameters = new object[] { uri, directory, fileName };
 
                 return AsyncTaskUtil.RunTask<object>(functionName, parameters, async () =>
                 {
-                    using HttpClient client = new HttpClient();
-                    using Stream stream = await client.GetStreamAsync(uri);
-                    using FileStream fileStream = new FileStream(fileName, FileMode.OpenOrCreate);
-                    await stream.CopyToAsync(fileStream);
+                    List<string> uris = new List<string>();
+                    if (uri.GetType() == typeof(string))
+                    {
+                        uris.Add((string)uri);
+                    }
+                    else if (uri.GetType() == typeof(object[,]))
+                    {
+                        object[,] inputArray = (object[,])uri;
+                        string?[] inputColumn = Enumerable.Range(0, inputArray.GetLength(0)).Select(x => Convert.ToString(inputArray[x, 0])).ToArray();
+                        uris.AddRange(inputColumn);
+                    }
+                    else
+                    {
+                        return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+                    }
 
-                    return fileName;
+                    string directoryPath = Directory.CreateDirectory(directory).FullName;
+
+                    List<Task> tasks = new List<Task>();
+
+                    foreach (string url in uris)
+                    {
+                        string urlFileName = Path.GetFileName(url);
+                        string filePath = Path.Combine(directoryPath, urlFileName);
+                        string fileNameValue = Optional.Check(fileName, "");
+
+                        if (fileNameValue != "")
+                        {
+                            filePath = Path.Combine(directoryPath, fileNameValue);
+                        }
+
+                        tasks.Add(DownloadFile(url, filePath));
+                    }
+
+                    await Task.WhenAll(tasks);
+
+                    return directoryPath;
                 });
             }
             catch
@@ -141,6 +174,23 @@ namespace ExcelFunctions
                 return ExcelDna.Integration.ExcelError.ExcelErrorNA;
             }
         }
+
+        private static async Task DownloadFile(string uri, string filePath)
+        {
+            try
+            {
+                using HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Add("User-Agent", "ExcelDownloadBot/0.0 (https://www.bim42.com/; simon@bim42.com)");
+                using Stream stream = await client.GetStreamAsync((string)uri);
+                using FileStream fileStream = new FileStream(filePath, FileMode.OpenOrCreate);
+                await stream.CopyToAsync(fileStream);
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
     }
+
 }
 
