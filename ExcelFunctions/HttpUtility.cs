@@ -3,6 +3,8 @@ using ExcelFunctions.Services;
 using HtmlAgilityPack;
 using System.Collections.Specialized;
 using ExcelDna.Registration.Utils;
+using System.Net;
+using System;
 
 namespace ExcelFunctions
 {
@@ -72,11 +74,11 @@ namespace ExcelFunctions
             }
         }
 
-        [ExcelFunction(Category = "HttpUtility", Description = "Selects the first node matching XPath expression from an HTML string.")]
-        public static object SELECTNODE(
+        [ExcelFunction(Category = "HttpUtility", Description = "Selects a list of nodes matching XPath expression from an HTML string.")]
+        public static object SELECTNODES(
 [ExcelArgument("html", Name = "html", Description = "String containing the HTML document to load. May not be null.")] string html,
 [ExcelArgument("xpath", Name = "xpath", Description = "The XPath expression.")] string xpath,
-[ExcelArgument("[attribute]", Name = "[attribute]", Description = "The minimun score to get a match.")] object attribute)
+[ExcelArgument("[attribute]", Name = "[attribute]", Description = "To get the given attribute value from the node.")] object attribute)
         {
             try
             {
@@ -107,6 +109,32 @@ namespace ExcelFunctions
                     l++;
                 }
                 return outputTable;
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "HttpUtility", Description = "Downloads the resource with the specified URI to a local file.")]
+        public static object DOWNLOADFILE(
+[ExcelArgument("uri", Name = "uri", Description = "The URI specified as a String, from which to download data.")] string uri,
+[ExcelArgument("fileName", Name = "fileName", Description = "The name of the local file that is to receive the data.")] string fileName)
+        {
+            try
+            {
+                var functionName = nameof(DOWNLOADFILE);
+                var parameters = new object[] { uri, fileName };
+
+                return AsyncTaskUtil.RunTask<object>(functionName, parameters, async () =>
+                {
+                    using HttpClient client = new HttpClient();
+                    using Stream stream = await client.GetStreamAsync(uri);
+                    using FileStream fileStream = new FileStream(fileName, FileMode.OpenOrCreate);
+                    await stream.CopyToAsync(fileStream);
+
+                    return fileName;
+                });
             }
             catch
             {
