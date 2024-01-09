@@ -113,6 +113,26 @@ namespace ExcelFunctions
             }
         }
 
+        [ExcelFunction(Category = "IO", Description = "Gets the size of an image WidthxHeight.")]
+        public static object IMAGESIZE([ExcelArgument("path", Name = "path", Description = "The path to the image file.")] string path)
+        {
+            try
+            {
+                System.Drawing.Image image = System.Drawing.Image.FromStream(File.OpenRead(path), false, false);
+
+                if (image == null)
+                {
+                    return ExcelDna.Integration.ExcelError.ExcelErrorNull;
+                }
+
+                return $"{image.Width}x{image.Height}";
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
         [ExcelFunction(Category = "IO", Description = "Gets a human-readable file size")]
         public static object PARSEBYSIZE([ExcelArgument("size", Name = "size", Description = "The input size, in bytes.")] double size)
         {
@@ -172,6 +192,25 @@ namespace ExcelFunctions
             try
             {
                 return Path.ChangeExtension(path, extension);
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "IO", Description = "Replace invalid caracters in a file name.")]
+        public static object GETVALIDFILENAME(
+    [ExcelArgument("filename", Name = "filename", Description = "The filename to modify.")] string filename)
+        {
+            try
+            {
+                foreach (char c in System.IO.Path.GetInvalidFileNameChars())
+                {
+                    filename = filename.Replace(c, '_');
+                }
+
+                return filename;
             }
             catch
             {
