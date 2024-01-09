@@ -190,6 +190,34 @@ namespace ExcelFunctions
                 Console.WriteLine(ex.Message);
             }
         }
+
+        [ExcelFunction(Category = "HttpUtility", Description = "Encodes a URL string.")]
+        public static object URLENCODE(
+[ExcelArgument("str", Name = "str", Description = "The text to encode.")] string str)
+        {
+            try
+            {
+                return System.Web.HttpUtility.UrlEncode(str);
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "HttpUtility", Description = "Converts a string that has been encoded for transmission in a URL into a decoded string.")]
+        public static object URLDECODE(
+[ExcelArgument("str", Name = "str", Description = "The string to decode.")] string str)
+        {
+            try
+            {
+                return System.Web.HttpUtility.UrlDecode(str);
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
     }
 
 }
