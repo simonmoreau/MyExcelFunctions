@@ -34,46 +34,14 @@ namespace ExcelFunctions
         public static object REGEXEXTRACT(
             [ExcelArgument("input", Name = "input", Description = "The string to search for a match.")] string input,
             [ExcelArgument("pattern", Name = "pattern", Description = "The regular expression pattern to match.")] string pattern,
-            [ExcelArgument("instance_num", Name = "instance_num", Description = "(Optional) A serial number that indicates which instance to extract. If omitted, returns the first found matches (default).")] object instance_num,
-            [ExcelArgument("match_case", Name = "match_case", Description = "(Optional) Defines whether to match (TRUE or omitted) or ignore (FALSE) text case.")] object match_case)
+            [ExcelArgument("[instance_num]", Name = "[instance_num]", Description = "(Optional) A serial number that indicates which instance to extract. If omitted, returns the first found matches (default).")] object instance_num,
+            [ExcelArgument("[match_case]", Name = "[match_case]", Description = "(Optional) Defines whether to match (TRUE or omitted) or ignore (FALSE) text case.")] object match_case)
         {
             try
             {
-                bool _match_case = true;
-                if (match_case != null)
-                {
-                    if (match_case.GetType() == typeof(ExcelDna.Integration.ExcelMissing))
-                    {
-                        _match_case = true;
-                    }
-                    else if (match_case.GetType() != typeof(bool))
-                    {
-                        return ExcelDna.Integration.ExcelError.ExcelErrorValue;
-                    }
-                    else
-                    {
-                        _match_case = Convert.ToBoolean(match_case);
-                    }
-                }
 
-
-                int _instance_num = 0;
-                if (instance_num != null)
-                {
-                    if (instance_num.GetType() == typeof(ExcelDna.Integration.ExcelMissing))
-                    {
-                        _instance_num = 0;
-                    }
-                    else if (instance_num.GetType() != typeof(double))
-                    {
-                        return ExcelDna.Integration.ExcelError.ExcelErrorValue;
-                    }
-                    else
-                    {
-                        _instance_num = Convert.ToInt32(instance_num);
-                    }
-                }
-
+                bool _match_case = Optional.Check(match_case, true);
+                int _instance_num = Optional.Check(instance_num, 0);
 
                 Regex regex = new Regex(pattern);
 
