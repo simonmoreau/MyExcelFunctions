@@ -95,6 +95,10 @@ namespace ExcelFunctions.XML
                     fieldType = GetNullableType(inputArray[rowIndex, i].GetType());
                     rowIndex++;
                 }
+                if (fieldType.FullName == "ExcelDna.Integration.ExcelEmpty")
+                {
+                    fieldType = typeof(string);
+                }
                 fields.Add(new DynamicField(name, fieldType));
             }
 
