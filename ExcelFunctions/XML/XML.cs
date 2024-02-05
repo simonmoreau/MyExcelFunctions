@@ -145,15 +145,15 @@ namespace ExcelFunctions.XML
                 objects.Add(rowObject);
             }
 
-            var objectSerialize = new ObjectSerialize
+            ObjectSerialize objectSerialize = new ObjectSerialize
             {
                 ObjectList = objects
             };
 
             XmlSerializer xsSubmit = new XmlSerializer(typeof(ObjectSerialize));
-            var xml = "";
+            string xml = "";
 
-            using (var sww = new StringWriter())
+            using (StringWriter sww = new StringWriter())
             {
                 using (XmlWriter writers = XmlWriter.Create(sww))
                 {

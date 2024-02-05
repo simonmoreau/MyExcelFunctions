@@ -43,10 +43,10 @@ namespace ExcelFunctions
             {
                 // From Web
                 HtmlWeb web = new HtmlWeb();
-                
 
-                var functionName = nameof(SELECTHTMLNODES);
-                var parameters = new object[] { url, xpath };
+
+                string functionName = nameof(SELECTHTMLNODES);
+                object[] parameters = new object[] { url, xpath };
 
                 return AsyncTaskUtil.RunTask<object>(functionName, parameters, async () =>
                 {
@@ -84,7 +84,7 @@ namespace ExcelFunctions
             try
             {
                 // From String
-                var doc = new HtmlDocument();
+                HtmlDocument doc = new HtmlDocument();
                 doc.LoadHtml(html);
 
                 string attribueName = Optional.Check(attribute, "");
@@ -125,8 +125,8 @@ namespace ExcelFunctions
         {
             try
             {
-                var functionName = nameof(DOWNLOADFILE);
-                var parameters = new object[] { uri, directory, fileName };
+                string functionName = nameof(DOWNLOADFILE);
+                object[] parameters = new object[] { uri, directory, fileName };
 
                 return AsyncTaskUtil.RunTask<object>(functionName, parameters, async () =>
                 {

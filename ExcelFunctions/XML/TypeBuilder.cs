@@ -15,7 +15,7 @@ namespace ExcelFunctions.XML
             ConstructorBuilder constructor = tb.DefineDefaultConstructor(MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
 
             // NOTE: assuming your list contains Field objects with fields FieldName(string) and FieldType(Type)
-            foreach (var field in fields)
+            foreach (DynamicField field in fields)
                 CreateProperty(tb, field.Name,field.Type);
 
             Type objectType = tb.CreateType();
@@ -25,8 +25,8 @@ namespace ExcelFunctions.XML
 
         private static TypeBuilder GetTypeBuilder(string typeSignature)
         {
-            var an = new AssemblyName(typeSignature);
-            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Guid.NewGuid().ToString()), AssemblyBuilderAccess.Run);
+            AssemblyName an = new AssemblyName(typeSignature);
+            AssemblyBuilder assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(Guid.NewGuid().ToString()), AssemblyBuilderAccess.Run);
             ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule("MainModule");
             TypeBuilder tb = moduleBuilder.DefineType(typeSignature,
                     TypeAttributes.Public |

@@ -408,6 +408,28 @@ namespace ExcelFunctions
             }
         }
 
+        [ExcelFunction(Category = "String", Description = "Capitalize the first letter of the sentence.", HelpTopic = "Capitalize the first letter of the sentence.")]
+        public static object SENTENCECASE(
+[ExcelArgument("name", Name = "name", Description = "The name to convert.")] string name)
+        {
+            try
+            {
+                // start by converting entire string to lower case
+                string lowerCase = name.ToLower();
+                // matches the first sentence of a string, as well as subsequent sentences
+                Regex r = new Regex(@"(^[a-z])|\.\s+(.)", RegexOptions.ExplicitCapture);
+                // MatchEvaluator delegate defines replacement of setence starts to uppercase
+                string result = r.Replace(lowerCase, s => s.Value.ToUpper());
+
+                // result is: "This is a group. Of uncapitalized. Letters."
+                return result;
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
 
     }
 }

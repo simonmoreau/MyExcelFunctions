@@ -27,12 +27,12 @@ namespace ExcelFunctions.XML
         public void WriteXml(XmlWriter writer)
         {
             string objectName = ObjectList[0].GetType().Name;
-            foreach (var obj in ObjectList)
+            foreach (object obj in ObjectList)
             {
                 //Provide elements for object item
                 writer.WriteStartElement(objectName);
-                var properties = obj.GetType().GetProperties();
-                foreach (var propertyInfo in properties)
+                System.Reflection.PropertyInfo[] properties = obj.GetType().GetProperties();
+                foreach (System.Reflection.PropertyInfo propertyInfo in properties)
                 {
                     object value = propertyInfo.GetValue(obj);
                     string textValue = "";
