@@ -386,6 +386,72 @@ namespace ExcelFunctions
             }
         }
 
+        [ExcelFunction(Category = "IO", Description = "Creates all directories and subdirectories in the specified path unless they already exist.")]
+        public static object CREATEDIRECTORY(
+    [ExcelArgument("path", Name = "path", Description = "The directory to create..")] string path)
+        {
+            try
+            {
+                Directory.CreateDirectory(path);
+                return $"{path}";
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "IO", Description = "Creates all directories and subdirectories in the specified path unless they already exist.")]
+        public static object COPYDIRECTORY(
+[ExcelArgument("sourceDirectoryName", Name = "sourceDirectoryName", Description = "The directory to be copied.")] string sourceDirectoryName,
+[ExcelArgument("destinationDirectoryName", Name = "destinationDirectoryName", Description = "The location to which the directory contents should be copied.")] string destinationDirectoryName,
+[ExcelArgument("[recursive]", Name = "[recursive]", Description = "true to include subfolders.")] object recursive)
+        {
+            try
+            {
+                bool recursiveBool = Optional.Check(recursive, false);
+                CopyDirectory(sourceDirectoryName, destinationDirectoryName, recursiveBool);
+                return destinationDirectoryName;
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        private static void CopyDirectory(string sourceDir, string destinationDir, bool recursive)
+        {
+            // Get information about the source directory
+            DirectoryInfo directoryInfo = new DirectoryInfo(sourceDir);
+
+            // Check if the source directory exists
+            if (!directoryInfo.Exists)
+                throw new DirectoryNotFoundException($"Source directory not found: {directoryInfo.FullName}");
+
+            // Cache directories before we start copying
+            DirectoryInfo[] dirs = directoryInfo.GetDirectories();
+
+            // Create the destination directory
+            Directory.CreateDirectory(destinationDir);
+
+            // Get the files in the source directory and copy to the destination directory
+            foreach (FileInfo file in directoryInfo.GetFiles())
+            {
+                string targetFilePath = Path.Combine(destinationDir, file.Name);
+                file.CopyTo(targetFilePath,true);
+            }
+
+            // If recursive and copying subdirectories, recursively call this method
+            if (recursive)
+            {
+                foreach (DirectoryInfo subDir in dirs)
+                {
+                    string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
+                    CopyDirectory(subDir.FullName, newDestinationDir, true);
+                }
+            }
+        }
+
         public static object SleepAsync(string ms)
         {
             return ExcelAsyncUtil.Run("SleepAsync", ms, delegate
