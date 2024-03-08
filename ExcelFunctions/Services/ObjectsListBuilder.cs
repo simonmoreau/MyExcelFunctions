@@ -347,14 +347,22 @@ namespace ExcelFunctions.Services
             {
                 PropertyInfo propertyToSet = parentTarget.GetType().GetProperty(bits.Last());
 
-                if (value.GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
+                try
                 {
-                    propertyToSet.SetValue(parentTarget, null, null);
+                    if (value.GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
+                    {
+                        propertyToSet.SetValue(parentTarget, null, null);
+                    }
+                    else
+                    {
+                        propertyToSet.SetValue(parentTarget, value, null);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    propertyToSet.SetValue(parentTarget, value, null);
+                    throw new Exception($"Property: {propertyToSet.Name} Value:{value}", ex);
                 }
+
 
                 
             }
