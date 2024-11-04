@@ -348,6 +348,34 @@ namespace ExcelFunctions
             }
         }
 
+        [ExcelFunction(Category = "String", Description = "Replaces the format items in a string with the string representation of three specified objects.", HelpTopic = "Replaces the format items in a string with the string representation of three specified objects.")]
+        public static object FORMAT(
+[ExcelArgument("format", Name = "format", Description = "A composite format string.")] string format,
+[ExcelArgument("arg0", Name = "arg0", Description = "The first object to format.")] string arg0,
+[ExcelArgument("[arg1]", Name = "[arg1]", Description = "(Optional) The second object to format.")] object arg1,
+[ExcelArgument("[arg2]", Name = "[arg2]", Description = "(Optional) The third object to format.")] object arg2)
+        {
+            try
+            {
+                if (arg1 is not ExcelMissing && arg2 is not ExcelMissing)
+                {
+                    return String.Format(format, arg0, arg1, arg2);
+                }
+
+                if (arg1 is not ExcelMissing)
+                {
+                    return String.Format(format, arg0, arg1);
+                }
+
+                return String.Format(format, arg0);
+
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
 
     }
 }
