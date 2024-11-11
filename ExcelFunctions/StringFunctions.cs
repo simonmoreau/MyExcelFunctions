@@ -377,23 +377,19 @@ namespace ExcelFunctions
         [ExcelFunction(Category = "String", Description = "Replaces the format items in a string with the string representation of three specified objects.", HelpTopic = "Replaces the format items in a string with the string representation of three specified objects.")]
         public static object FORMAT(
 [ExcelArgument("format", Name = "format", Description = "A composite format string.")] string format,
-[ExcelArgument("arg0", Name = "arg0", Description = "The first object to format.")] string arg0,
+[ExcelArgument("arg0", Name = "arg0", Description = "The first object to format.")] object arg0,
 [ExcelArgument("[arg1]", Name = "[arg1]", Description = "(Optional) The second object to format.")] object arg1,
 [ExcelArgument("[arg2]", Name = "[arg2]", Description = "(Optional) The third object to format.")] object arg2)
         {
             try
             {
-                if (arg1 is not ExcelMissing && arg2 is not ExcelMissing)
-                {
-                    return String.Format(format, arg0, arg1, arg2);
-                }
+                var list0 = GetList(arg0);
+                var list1 = GetList(arg1);
+                var list2 = GetList(arg2);
 
-                if (arg1 is not ExcelMissing)
-                {
-                    return String.Format(format, arg0, arg1);
-                }
+                object[,] outputTable = Format(format, list0, list1,list2);
 
-                return String.Format(format, arg0);
+                return outputTable;
 
             }
             catch
@@ -402,6 +398,61 @@ namespace ExcelFunctions
             }
         }
 
+        private static List<string> GetList(object arg)
+        {
+            List<string> list = new List<string>();
 
+            if (arg is ExcelMissing) return list;
+            if (arg is object[,])
+            {
+                object[,] argArray = (object[,])arg;
+
+                foreach (string value in argArray)
+                {
+                    list.Add((string)value);
+                }
+            }
+            else
+            {
+                list.Add(arg.ToString());
+            }
+
+            return list;
+        }
+
+        private static object[,] Format(string format, List<string> strings0, List<string> strings1, List<string> strings2)
+        {
+            List<string> formatedTexts = new List<string>();
+
+            foreach (string value0 in strings0)
+            {
+                if (strings1.Count == 0)
+                {
+                    formatedTexts.Add(String.Format(format, value0));
+                }
+                foreach (string value1 in strings1)
+                {
+                    if (strings2.Count == 0)
+                    {
+                        formatedTexts.Add(String.Format(format, value0,value1));
+                    }
+                    foreach (string value2 in strings2)
+                    {
+                        formatedTexts.Add(String.Format(format, value0, value1, value2));
+                    }
+                }
+            }
+
+            int l = 0;
+            object[,] outputTable = new object[formatedTexts.Count, 1];
+
+            foreach (string formatedText in formatedTexts)
+            {
+                outputTable[l,0] = formatedText;
+                l++;
+            }
+
+            return outputTable;
+        }
     }
 }
