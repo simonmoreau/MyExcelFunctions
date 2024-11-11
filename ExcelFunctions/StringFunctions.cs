@@ -1,6 +1,7 @@
 ﻿using ExcelDna.Integration;
 using ExcelFunctions.Services;
 using FuzzySharp;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using System.Data.Common;
 using System.Globalization;
 using System.Text;
@@ -28,6 +29,31 @@ namespace ExcelFunctions
             }
         }
 
+        [ExcelFunction(Category = "String", Description = "Splits a string into substrings based on a specified delimiting string.", HelpTopic = "Splits a string into substrings based on a specified delimiting string.")]
+        public static object SPLITVALUE(
+[ExcelArgument("string", Name = "string", Description = "The input string")] string input,
+[ExcelArgument("separator", Name = "separator", Description = "A string that delimits the substrings in this string.")] string separator)
+        {
+            try
+            {
+                string[] values = input.Split(separator, StringSplitOptions.None);
+
+                object[,] outputTable = new object[values.Length, 1];
+
+                int l = 0;
+                foreach (string value in values)
+                {
+                    outputTable[l, 0] = value;
+                    l++;
+                }
+
+                return outputTable;
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
 
         [ExcelFunction(Category = "String", Description = "Converts the string representation of a date and time to its System.DateTime equivalent.", HelpTopic = "Converts the string representation of a date and time to its System.DateTime equivalent.")]
         public static object PARSEDATE(
