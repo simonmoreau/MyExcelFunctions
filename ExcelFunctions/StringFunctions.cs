@@ -379,15 +379,17 @@ namespace ExcelFunctions
 [ExcelArgument("format", Name = "format", Description = "A composite format string.")] string format,
 [ExcelArgument("arg0", Name = "arg0", Description = "The first object to format.")] object arg0,
 [ExcelArgument("[arg1]", Name = "[arg1]", Description = "(Optional) The second object to format.")] object arg1,
-[ExcelArgument("[arg2]", Name = "[arg2]", Description = "(Optional) The third object to format.")] object arg2)
+[ExcelArgument("[arg2]", Name = "[arg2]", Description = "(Optional) The third object to format.")] object arg2,
+[ExcelArgument("[arg3]", Name = "[arg3]", Description = "(Optional) The fourth object to format.")] object arg3)
         {
             try
             {
                 var list0 = GetList(arg0);
                 var list1 = GetList(arg1);
                 var list2 = GetList(arg2);
+                var list3 = GetList(arg3);
 
-                object[,] outputTable = Format(format, list0, list1,list2);
+                object[,] outputTable = Format(format, list0, list1,list2, list3);
 
                 return outputTable;
 
@@ -420,7 +422,7 @@ namespace ExcelFunctions
             return list;
         }
 
-        private static object[,] Format(string format, List<string> strings0, List<string> strings1, List<string> strings2)
+        private static object[,] Format(string format, List<string> strings0, List<string> strings1, List<string> strings2, List<string> strings3)
         {
             List<string> formatedTexts = new List<string>();
 
@@ -438,7 +440,14 @@ namespace ExcelFunctions
                     }
                     foreach (string value2 in strings2)
                     {
-                        formatedTexts.Add(String.Format(format, value0, value1, value2));
+                        if (strings3.Count == 0)
+                        {
+                            formatedTexts.Add(String.Format(format, value0, value1, value2));
+                        }
+                        foreach (string value3 in strings3)
+                        {
+                            formatedTexts.Add(String.Format(format, value0, value1, value2,value3));
+                        }
                     }
                 }
             }
