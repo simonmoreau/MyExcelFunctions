@@ -17,15 +17,15 @@ namespace ExcelFunctions.Services
 {
     internal class PropertyHolder
     {
-        public Dictionary<string,object> Fields = new Dictionary<string,object>();
-        public Dictionary<string,List<PropertyHolder>> Properties = new Dictionary<string,List<PropertyHolder>>();
+        public Dictionary<string, object> Fields = new Dictionary<string, object>();
+        public Dictionary<string, List<PropertyHolder>> Properties = new Dictionary<string, List<PropertyHolder>>();
     }
     internal class ObjectsListBuilder
     {
 
-        public static List<object> BuilObjectList(object[,] inputArray, out Type buildedType)
+        public static List<object> BuilObjectList(object[,] inputArray, out Type buildedType, string[]? dateColumns = null)
         {
-            List<Dictionary<string, object>> dataTree = CreateDataTree(inputArray);
+            List<Dictionary<string, object>> dataTree = CreateDataTree(inputArray, dateColumns);
 
             IEnumerable<IGrouping<string, Dictionary<string, object>>> groups = dataTree.GroupBy(d => GroupingString(d));
 
@@ -36,7 +36,7 @@ namespace ExcelFunctions.Services
                 propertyHolders.Add(BuildHolder(group));
             }
 
-            Dictionary<string, Type> columnsWithType = ListColumns(inputArray);
+            Dictionary<string, Type> columnsWithType = ListColumns(inputArray, dateColumns);
 
             Dictionary<string, object> root = new Dictionary<string, object>();
 
@@ -94,7 +94,7 @@ namespace ExcelFunctions.Services
                 }
 
                 SetPropertyValue(rowObject, propertyPath, field.Value, indexes, rank);
-                
+
             }
 
             foreach (KeyValuePair<string, List<PropertyHolder>> properties in propertyHolder.Properties)
@@ -115,7 +115,7 @@ namespace ExcelFunctions.Services
                 }
             }
 
-            
+
         }
 
         private static PropertyHolder BuildHolder(IGrouping<string, Dictionary<string, object>> group)
@@ -127,7 +127,7 @@ namespace ExcelFunctions.Services
             {
                 foreach (KeyValuePair<string, object> item1 in item)
                 {
-                    if (item1.Value.GetType() == typeof(Dictionary<string, object>))
+                    if (item1.Value?.GetType() == typeof(Dictionary<string, object>))
                     {
                         Dictionary<string, object> nestedItem = (Dictionary<string, object>)item1.Value;
                         if (subDataTree.ContainsKey(item1.Key))
@@ -169,12 +169,24 @@ namespace ExcelFunctions.Services
             return propertyHolder;
         }
 
-        private static List<Dictionary<string, object>> CreateDataTree(object[,] inputArray)
+        private static List<Dictionary<string, object>> CreateDataTree(object[,] inputArray, string[]? dateColumns = null)
         {
 
             string[] headers = Enumerable.Range(0, inputArray.GetLength(1))
                 .Select(x => inputArray[0, x].ToString())
                 .ToArray();
+
+            bool[] isDateHeaders = Enumerable.Repeat(false, headers.Length).ToArray();
+
+            if (dateColumns != null)
+            {
+                for (int j = 0; j < headers.Length; j++)
+                {
+                    if (!dateColumns.Contains(headers[j])) continue;
+                    isDateHeaders[j] = true;
+                }
+            }
+
 
             List<Dictionary<string, object>> classInfoList = new List<Dictionary<string, object>>();
 
@@ -189,7 +201,21 @@ namespace ExcelFunctions.Services
                 for (int j = 0; j < headers.Length; j++)
                 {
                     string header = headers[j];
+                    bool isDateHeader = isDateHeaders[j];
+
                     object value = data[j];
+
+                    if (isDateHeader)
+                    {
+                        if (value.GetType() == typeof(double))
+                        {
+                            value = DateTime.FromOADate((double)value);
+                        }
+                        else
+                        {
+                            value = null;
+                        }
+                    }
 
                     string[] nestedHeaders = header.Split('.');
                     if (nestedHeaders.Length > 1)
@@ -231,13 +257,19 @@ namespace ExcelFunctions.Services
             string groupingString = "";
             foreach (KeyValuePair<string, object> keyValue in dictionary)
             {
-                if (keyValue.Value.GetType() != typeof(Dictionary<string, object>))
+                if (keyValue.Value?.GetType() != typeof(Dictionary<string, object>))
                 {
-                    string value = keyValue.Value.ToString();
-                    if (keyValue.Value.GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
+                    string value = keyValue.Value?.ToString();
+
+                    if (keyValue.Value == null)
                     {
                         value = "";
                     }
+                    else if (keyValue.Value?.GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
+                    {
+                        value = "";
+                    }
+
                     groupingString = groupingString + ";" + value;
                 }
             }
@@ -245,9 +277,9 @@ namespace ExcelFunctions.Services
             return groupingString;
         }
 
-        
 
-        private static Dictionary<string, Type> ListColumns(object[,] inputArray)
+
+        private static Dictionary<string, Type> ListColumns(object[,] inputArray, string[]? dateColumns = null)
         {
             // Build an dictonary of field
             Dictionary<string, Type> columnsWithType = new Dictionary<string, Type>();
@@ -256,18 +288,26 @@ namespace ExcelFunctions.Services
             for (int i = 0; i < inputArray.GetLength(1); i++)
             {
                 string name = inputArray[0, i].ToString();
+
                 Type fieldType = GetNullableType(inputArray[1, i].GetType());
 
-                int rowIndex = 1;
-                while (fieldType.FullName == "ExcelDna.Integration.ExcelEmpty" && rowIndex < inputArray.GetLength(0))
+                if (dateColumns != null && dateColumns.Contains(name))
                 {
-                    fieldType = GetNullableType(inputArray[rowIndex, i].GetType());
-                    rowIndex++;
+                    fieldType = typeof(DateTime?);
                 }
-
-                if (fieldType.FullName == "ExcelDna.Integration.ExcelEmpty")
+                else
                 {
-                    fieldType = typeof(string);
+                    int rowIndex = 1;
+                    while (fieldType.FullName == "ExcelDna.Integration.ExcelEmpty" && rowIndex < inputArray.GetLength(0))
+                    {
+                        fieldType = GetNullableType(inputArray[rowIndex, i].GetType());
+                        rowIndex++;
+                    }
+
+                    if (fieldType.FullName == "ExcelDna.Integration.ExcelEmpty")
+                    {
+                        fieldType = typeof(string);
+                    }
                 }
 
                 columnsWithType.Add(name, fieldType);
@@ -339,7 +379,7 @@ namespace ExcelFunctions.Services
                         }
                     }
                 }
-                
+
 
 
             }
@@ -347,24 +387,18 @@ namespace ExcelFunctions.Services
             {
                 PropertyInfo propertyToSet = parentTarget.GetType().GetProperty(bits.Last());
 
-                try
+                if (value?.GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
                 {
-                    if (value.GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
-                    {
-                        propertyToSet.SetValue(parentTarget, null, null);
-                    }
-                    else
-                    {
-                        propertyToSet.SetValue(parentTarget, value, null);
-                    }
+                    propertyToSet.SetValue(parentTarget, null, null);
                 }
-                catch (Exception ex)
+                else if(value?.GetType() == typeof(string) && propertyToSet.PropertyType == typeof(double?))
                 {
-                    throw new Exception($"Property: {propertyToSet.Name} Value:{value}", ex);
+                    propertyToSet.SetValue(parentTarget, null, null);
                 }
-
-
-                
+                else
+                {
+                    propertyToSet.SetValue(parentTarget, value, null);
+                }
             }
 
         }

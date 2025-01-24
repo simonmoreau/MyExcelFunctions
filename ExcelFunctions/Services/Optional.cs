@@ -72,6 +72,25 @@ namespace ExcelFunctions.Services
 
         }
 
+        internal static string[]? Check(object arg)
+        {
+            if (arg is object[,])
+            {
+                List<string> list = new List<string>();
+                object[,] argArray = (object[,])arg;
+
+                foreach (string value in argArray)
+                {
+                    list.Add((string)value);
+                }
+                return list.ToArray();
+            }
+            else if (arg is ExcelMissing)
+                return null;
+            else
+                throw new ArgumentException();  // Or defaultValue or whatever
+        }
+
         // This one is more tricky - we have to do the double->Date conversions ourselves
         internal static DateTime Check(object arg, DateTime defaultValue)
         {

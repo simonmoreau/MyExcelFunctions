@@ -58,7 +58,7 @@ namespace ExcelFunctions
         [ExcelFunction(Category = "String", Description = "Converts the string representation of a date and time to its System.DateTime equivalent.", HelpTopic = "Converts the string representation of a date and time to its System.DateTime equivalent.")]
         public static object PARSEDATE(
             [ExcelArgument("input", Name = "input", Description = "A string that contains a date and time to convert.")] string input,
-            [ExcelArgument("format", Name = "format", Description = "[optional]A format specifier that defines the required format of input.")] string format)
+            [ExcelArgument("[format]", Name = "[format]", Description = "[optional]A format specifier that defines the required format of input.")] string format)
         {
             try
             {
