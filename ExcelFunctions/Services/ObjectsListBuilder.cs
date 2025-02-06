@@ -354,7 +354,15 @@ namespace ExcelFunctions.Services
                     Type type = parentTarget.GetType().GetGenericArguments()[0];
                     object objTemp = Activator.CreateInstance(type);
                     PropertyInfo propertyToSet = objTemp.GetType().GetProperty(bits.Last());
-                    propertyToSet.SetValue(objTemp, value, null);
+                    if (value.GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
+                    {
+                        propertyToSet.SetValue(objTemp, null, null);
+                    }
+                    else
+                    {
+                        propertyToSet.SetValue(objTemp, value, null);
+                    }
+
                     parentTarget.GetType().GetMethod("Add").Invoke(parentTarget, new[] { objTemp });
                 }
                 else
