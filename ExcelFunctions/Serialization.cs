@@ -31,7 +31,12 @@ namespace ExcelFunctions
                     string[]? datesColumns = Optional.Check(dates);
                     List<object> objects = ObjectsListBuilder.BuilObjectList(inputArray, out type, datesColumns);
 
-                    string jsonString = JsonSerializer.Serialize(objects);
+                    JsonSerializerOptions options = new JsonSerializerOptions
+                    {
+                        WriteIndented = true
+                    };
+
+                    string jsonString = JsonSerializer.Serialize(objects, options);
                     return jsonString;
 
                 }
@@ -63,7 +68,12 @@ namespace ExcelFunctions
                     string[]? datesColumns = Optional.Check(dates);
                     List<object> objects = ObjectsListBuilder.BuilObjectList(inputArray, out type, datesColumns);
 
-                    string jsonString = JsonSerializer.Serialize(objects);
+                    JsonSerializerOptions options = new JsonSerializerOptions
+                    {
+                        WriteIndented = true
+                    };
+
+                    string jsonString = JsonSerializer.Serialize(objects, options);
 
                     if (path == null) throw new NullReferenceException("The path is null");
 
