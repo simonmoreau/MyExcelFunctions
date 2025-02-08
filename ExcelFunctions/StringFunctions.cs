@@ -2,6 +2,7 @@
 using ExcelFunctions.Services;
 using FuzzySharp;
 using Microsoft.Extensions.FileSystemGlobbing.Internal;
+using System;
 using System.Data.Common;
 using System.Globalization;
 using System.Text;
@@ -345,6 +346,36 @@ namespace ExcelFunctions
             {
                 TextInfo ti = CultureInfo.CurrentCulture.TextInfo;
                 return ti.ToTitleCase(name);
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "String", Description = "Return a globally unique identifier (GUID).", HelpTopic = "Return a globally unique identifier (GUID).")]
+        public static object GUID(
+[ExcelArgument("[type]", Name = "[type]", Description = "(Optional) The type of guid, long (0) or short (1) to return.")] int type)
+        {
+            try
+            {
+                int typeValue = Optional.Check(type, 0);
+                
+                if (typeValue == 1)
+                {
+                    var base64Guid = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+
+                    // Replace URL unfriendly characters
+                    base64Guid = base64Guid.Replace('+', '-').Replace('/', '_');
+
+                    // Remove the trailing ==
+                    return base64Guid.Substring(0, base64Guid.Length - 2);
+                }
+                else
+                {
+                    return Guid.NewGuid().ToString();
+                }
+
             }
             catch
             {

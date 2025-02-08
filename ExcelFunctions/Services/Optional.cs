@@ -53,7 +53,7 @@ namespace ExcelFunctions.Services
 
         internal static int Check(object arg, int defaultValue)
         {
-            if (arg is double)
+            if (arg is int)
                 return Convert.ToInt16(arg);
             else if (arg.GetType().Name == typeof(ExcelMissing).Name )
                 return defaultValue;
