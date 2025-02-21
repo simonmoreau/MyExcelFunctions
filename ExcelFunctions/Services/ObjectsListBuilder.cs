@@ -352,63 +352,57 @@ namespace ExcelFunctions.Services
                 {
                     // Add a new object to the list
                     Type type = parentTarget.GetType().GetGenericArguments()[0];
-                    object objTemp = Activator.CreateInstance(type);
-                    PropertyInfo propertyToSet = objTemp.GetType().GetProperty(bits.Last());
-                    if (value.GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
-                    {
-                        propertyToSet.SetValue(objTemp, null, null);
-                    }
-                    else
-                    {
-                        propertyToSet.SetValue(objTemp, value, null);
-                    }
+                    object objectToSet = Activator.CreateInstance(type);
+                    PropertyInfo propertyToSet = objectToSet.GetType().GetProperty(bits.Last());
 
-                    parentTarget.GetType().GetMethod("Add").Invoke(parentTarget, new[] { objTemp });
+                    SetValue(objectToSet, value, propertyToSet);
+
+                    parentTarget.GetType().GetMethod("Add").Invoke(parentTarget, new[] { objectToSet });
                 }
                 else
                 {
                     // Add the property to the given object in the list
-                    object objTemp = list[indexes[rank]];
-                    PropertyInfo propertyToSet = objTemp.GetType().GetProperty(bits.Last());
+                    object objectToSet = list[indexes[rank]];
+                    PropertyInfo propertyToSet = objectToSet.GetType().GetProperty(bits.Last());
 
-                    if (value.GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
-                    {
-                        propertyToSet.SetValue(objTemp, null, null);
-                    }
-                    else
-                    {
-                        if (value.GetType() == typeof(string) && propertyToSet.PropertyType != typeof(string))
-                        {
-                            propertyToSet.SetValue(objTemp, null, null);
-                        }
-                        else
-                        {
-                            propertyToSet.SetValue(objTemp, value, null);
-                        }
-                    }
+                    SetValue(objectToSet, value, propertyToSet);
                 }
-
-
-
             }
             else
             {
                 PropertyInfo propertyToSet = parentTarget.GetType().GetProperty(bits.Last());
 
-                if (value?.GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
+                SetValue(parentTarget, value, propertyToSet);
+
+            }
+
+        }
+
+        private static void SetValue(object parentTarget, object value, PropertyInfo propertyToSet)
+        {
+            if (value?.GetType().FullName == "ExcelDna.Integration.ExcelEmpty")
+            {
+                propertyToSet.SetValue(parentTarget, null, null);
+            }
+            else if (value?.GetType() == typeof(string) && propertyToSet.PropertyType == typeof(double?))
+            {
+                if (double.TryParse(value.ToString(), out double doubleValue))
                 {
-                    propertyToSet.SetValue(parentTarget, null, null);
-                }
-                else if(value?.GetType() == typeof(string) && propertyToSet.PropertyType == typeof(double?))
-                {
-                    propertyToSet.SetValue(parentTarget, null, null);
+                    propertyToSet.SetValue(parentTarget, doubleValue, null);
                 }
                 else
                 {
-                    propertyToSet.SetValue(parentTarget, value, null);
+                    propertyToSet.SetValue(parentTarget, null, null);
                 }
             }
-
+            else if (value?.GetType() == typeof(double) && propertyToSet.PropertyType == typeof(string))
+            {
+                propertyToSet.SetValue(parentTarget, value.ToString(), null);
+            }
+            else
+            {
+                propertyToSet.SetValue(parentTarget, value, null);
+            }
         }
 
         private static Type GetNullableType(Type type)
