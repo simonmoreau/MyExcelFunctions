@@ -24,7 +24,7 @@ namespace ExcelFunctions
 
                 ILogger logger = container.GetService<ILogger>() ?? throw new Exception("Could not resolve an ILogger");
 
-                logger.LogInformation("Loading AzureServiceBus.ExcelAddIn");
+                logger.LogInformation("Loading ExcelFunctions");
 
                 ExcelIntegration.RegisterUnhandledExceptionHandler(ex =>
                 {
@@ -49,7 +49,7 @@ namespace ExcelFunctions
             try
             {
                 ILogger? logger = ContainerOperations.Container.GetService<ILogger>();
-                logger?.LogInformation("Unloading AzureServiceBus.ExcelAddIn");
+                logger?.LogInformation("Unloading ExcelFunctions");
             }
             catch
             {

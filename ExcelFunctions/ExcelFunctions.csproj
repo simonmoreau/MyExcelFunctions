@@ -34,9 +34,17 @@
 		<PackageReference Include="Serilog.Settings.Configuration" Version="3.4.0" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
 
+		<PackageReference Include="Azure.AI.OpenAI" Version="2.2.0-beta.1" />
+		<PackageReference Include="Microsoft.Extensions.AI" Version="9.3.0-preview.1.25161.3" />
+		<PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.3.0-preview.1.25161.3" />
+
 	</ItemGroup>
 
 	<ItemGroup>
+		
+		<None Update="appsettings.Development.json">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 		
 		<None Update="appsettings.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -45,5 +53,8 @@
 
 	<Target Name="CopyCustomContent" AfterTargets="AfterBuild">
 		<Copy SourceFiles="appsettings.json" DestinationFolder="$(OutDir)\publish" />
+	</Target>
+	<Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+		<Copy SourceFiles="appsettings.Development.json" DestinationFolder="$(OutDir)\publish" />
 	</Target>
 </Project>
