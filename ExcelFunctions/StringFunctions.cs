@@ -363,7 +363,7 @@ namespace ExcelFunctions
                 
                 if (typeValue == 1)
                 {
-                    var base64Guid = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+                    string base64Guid = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
 
                     // Replace URL unfriendly characters
                     base64Guid = base64Guid.Replace('+', '-').Replace('/', '_');
@@ -415,10 +415,10 @@ namespace ExcelFunctions
         {
             try
             {
-                var list0 = GetList(arg0);
-                var list1 = GetList(arg1);
-                var list2 = GetList(arg2);
-                var list3 = GetList(arg3);
+                List<string> list0 = GetList(arg0);
+                List<string> list1 = GetList(arg1);
+                List<string> list2 = GetList(arg2);
+                List<string> list3 = GetList(arg3);
 
                 object[,] outputTable = Format(format, list0, list1,list2, list3);
 
