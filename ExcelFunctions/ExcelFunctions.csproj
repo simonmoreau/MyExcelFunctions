@@ -9,7 +9,7 @@
 
 	<PropertyGroup>
 		<ExcelDnaAllowPackageReferenceProjectStyle>true</ExcelDnaAllowPackageReferenceProjectStyle>
-		<ExcelAddInInclude>HtmlAgilityPack.dll;FuzzySharp.dll;Bogus.dll;Fluid.dll;Markdig.dll;Microsoft.Extensions.FileProviders.Abstractions.dll;Microsoft.Extensions.FileProviders.Physical.dll;Microsoft.Extensions.FileSystemGlobbing.dll;Microsoft.Extensions.Primitives.dll;Parlot.dll;TimeZoneConverter.dll</ExcelAddInInclude>
+		<ExcelAddInInclude>HtmlAgilityPack.dll;FuzzySharp.dll;Bogus.dll;Fluid.dll;Markdig.dll;Microsoft.Extensions.FileProviders.Abstractions.dll;Microsoft.Extensions.FileProviders.Physical.dll;Microsoft.Extensions.FileSystemGlobbing.dll;Microsoft.Extensions.Primitives.dll;Parlot.dll;TimeZoneConverter.dll;Microsoft.WindowsAPICodePack.dll;Microsoft.WindowsAPICodePack.Shell.dll;Microsoft.Win32.SystemEvents.dll</ExcelAddInInclude>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -20,6 +20,7 @@
 		<PackageReference Include="FuzzySharp" Version="2.0.2" />
 		<PackageReference Include="HtmlAgilityPack" Version="1.11.57" />
 		<PackageReference Include="Markdig" Version="0.40.0" />
+		<PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
 		<PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
