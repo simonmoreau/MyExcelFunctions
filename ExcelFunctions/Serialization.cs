@@ -19,7 +19,7 @@ namespace ExcelFunctions
         [ExcelFunction(Category = "Serialization", Description = "Converts the provided value into a JSON string.", HelpTopic = "Converts the provided value into a JSON string.")]
         public static object JSONSERIALIZE(
 [ExcelArgument("table", Name = "table", Description = "The table of values to convert.")] object values,
-[ExcelArgument("[dates]", Name = "[dates]", Description = "[optional]A list of column to be serialized as dates")] object dates)
+[ExcelArgument("[dates]", Name = "[dates]", Description = "[optional]A comma-separated list of column name to be serialized as dates")] object dates)
         {
             if (values is object[,])
             {
@@ -28,7 +28,12 @@ namespace ExcelFunctions
                     object[,] inputArray = (object[,])values;
 
                     Type type = null;
-                    string[]? datesColumns = Optional.Check(dates);
+                    string? datesColumnsName = Optional.Check(dates,"");
+                    string[]? datesColumns = null;
+                    if (!string.IsNullOrEmpty(datesColumnsName))
+                    {
+                        datesColumns = datesColumnsName.Split(',').Select(s => s.Trim()).ToArray();
+                    }
                     List<object> objects = ObjectsListBuilder.BuilObjectList(inputArray, out type, datesColumns);
 
                     JsonSerializerOptions options = new JsonSerializerOptions
@@ -56,7 +61,7 @@ namespace ExcelFunctions
         public static object JSONSERIALIZETOFILE(
                 [ExcelArgument("table", Name = "table", Description = "The table of values to convert.")] object values,
                 [ExcelArgument("path", Name = "path", Description = "The path to the json file")] object path,
-                [ExcelArgument("[dates]", Name = "[dates]", Description = "[optional]A list of column to be serialized as dates")] object dates)
+                [ExcelArgument("[dates]", Name = "[dates]", Description = "[optional]A comma-separated list of column name to be serialized as dates")] object dates)
         {
             if (values is object[,])
             {
@@ -65,7 +70,12 @@ namespace ExcelFunctions
                     object[,] inputArray = (object[,])values;
 
                     Type type = null;
-                    string[]? datesColumns = Optional.Check(dates);
+                    string? datesColumnsName = Optional.Check(dates, "");
+                    string[]? datesColumns = null;
+                    if (!string.IsNullOrEmpty(datesColumnsName))
+                    {
+                        datesColumns = datesColumnsName.Split(',').Select(s => s.Trim()).ToArray();
+                    }
                     List<object> objects = ObjectsListBuilder.BuilObjectList(inputArray, out type, datesColumns);
 
                     JsonSerializerOptions options = new JsonSerializerOptions
