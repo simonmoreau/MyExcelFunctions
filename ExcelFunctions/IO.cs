@@ -377,7 +377,10 @@ namespace ExcelFunctions
         {
             try
             {
-                System.IO.File.WriteAllText(path, contents);
+                using (var writer = new System.IO.StreamWriter(path, false, System.Text.Encoding.GetEncoding("iso-8859-1")))
+                {
+                    writer.Write(contents);
+                }
                 return $"Text written to {path}";
             }
             catch
