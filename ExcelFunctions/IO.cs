@@ -61,6 +61,20 @@ namespace ExcelFunctions
             }
         }
 
+        [ExcelFunction(Category = "IO", Description = "Combine two strings into a path")]
+        public static object COMBINEPATH([ExcelArgument("path1", Name = "path1", Description = "The first path string")] string path1,
+                                           [ExcelArgument("path2", Name = "path2", Description = "The second path string")] string path2)
+        {
+            try
+            {
+                return Path.Combine(path1, path2);
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
         [ExcelFunction(Category = "IO", Description = "Determines whether the specified file exists.")]
         public static object FILEEXISTS([ExcelArgument("path", Name = "path", Description = "The file to check.")] string path)
         {
@@ -323,7 +337,17 @@ namespace ExcelFunctions
             try
             {
                 bool overrideDestination = Optional.Check(overrideDest, false);
+                string? destDirectory = Path.GetDirectoryName(destFileName);
 
+                if (destDirectory == null)
+                {
+                    return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+                }
+
+                if (!Directory.Exists(destDirectory))
+                {
+                    Directory.CreateDirectory(destDirectory);
+                }
                 // Move the file.
                 System.IO.File.Copy(sourceFileName, destFileName, overrideDestination);
                 return destFileName;
