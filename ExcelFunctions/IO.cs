@@ -213,25 +213,6 @@ namespace ExcelFunctions
             }
         }
 
-        [ExcelFunction(Category = "IO", Description = "Replace invalid caracters in a file name.")]
-        public static object GETVALIDFILENAME(
-    [ExcelArgument("filename", Name = "filename", Description = "The filename to modify.")] string filename)
-        {
-            try
-            {
-                foreach (char c in System.IO.Path.GetInvalidFileNameChars())
-                {
-                    filename = filename.Replace(c, '_');
-                }
-
-                return filename;
-            }
-            catch
-            {
-                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
-            }
-        }
-
         [ExcelFunction(Category = "IO", Description = "Returns the names of files (including their paths) in the specified directory.")]
         public static object GETFILES(
             [ExcelArgument("path", Name = "path", Description = "The relative or absolute path to the directory to search. This string is not case-sensitive.")] string path,
@@ -351,6 +332,33 @@ namespace ExcelFunctions
                 // Move the file.
                 System.IO.File.Copy(sourceFileName, destFileName, overrideDestination);
                 return destFileName;
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
+        [ExcelFunction(Category = "IO", Description = "Replace invalid characters in a path with a specified replacement.")]
+        public static object GETVALIDPATH(
+    [ExcelArgument("path", Name = "path", Description = "The path to sanitize.")] string path,
+    [ExcelArgument("replacement", Name = "replacement", Description = "Replacement string for invalid path characters.")] string replacement)
+        {
+            try
+            {
+                List<char> invalidChar = new List<char>();
+                invalidChar.AddRange(System.IO.Path.GetInvalidPathChars());
+                invalidChar.Add('\u0022');
+                invalidChar.Add('\u201C');
+                invalidChar.Add('\u201D');
+                invalidChar.Add(':');
+
+                foreach (char c in invalidChar)
+                {
+                    path = path.Replace(c.ToString(), replacement);
+                }
+
+                return path;
             }
             catch
             {
