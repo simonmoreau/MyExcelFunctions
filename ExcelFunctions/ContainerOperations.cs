@@ -1,7 +1,7 @@
 ﻿using Azure.AI.OpenAI;
-using Microsoft.Extensions.AI;
 using ExcelDna.Integration;
 using ExcelFunctions.AI;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -71,13 +71,21 @@ namespace ExcelFunctions
             Uri endpoint = new Uri(azureOpenAISettigns.Endpoint);
             ApiKeyCredential apiKey = new ApiKeyCredential(azureOpenAISettigns.Key);
 
-            IChatClient chatClient = new AzureOpenAIClient(
-                        endpoint,
-                        apiKey)
-                    .AsChatClient(deploymentName)
-                    .AsBuilder()
-                    .UseFunctionInvocation()
-                    .Build();
+            // Build AI client and chat client with defensive checks
+            AzureOpenAIClient azureClient = new(endpoint, apiKey);
+            if (string.IsNullOrWhiteSpace(deploymentName))
+                throw new InvalidOperationException("Azure OpenAI deployment name (ModelId) is not configured.");
+            IChatClient chatClient;
+            try
+            {
+                chatClient = azureClient.GetChatClient(deploymentName).AsIChatClient();
+            }
+            catch (Exception ex)
+            {
+                // Surface a clear error in the logs to aid debugging when the add-in starts
+                Serilog.Log.Logger?.Error(ex, "Failed to create IChatClient for deployment '{Deployment}'", deploymentName);
+                throw;
+            }
 
             services.AddChatClient(chatClient);
 

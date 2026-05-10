@@ -12,4 +12,10 @@ namespace ExcelFunctions.AI
         public string Key { get; set; }
         public string ModelId { get; set; }
     }
+
+    public class OllamaSettings
+    {
+        public string Endpoint { get; set; }
+        public string ModelId { get; set; }
+    }
 }

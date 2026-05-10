@@ -1,16 +1,51 @@
-﻿using ExcelDna.Integration;
+﻿using Azure.Core;
+using ExcelDna.Integration;
+using ExcelDna.Registration.Utils;
 using ExcelFunctions.Services;
 using HtmlAgilityPack;
-using System.Collections.Specialized;
-using ExcelDna.Registration.Utils;
-using System.Net;
+using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Specialized;
 using System.IO;
+using System.Net;
 
 namespace ExcelFunctions
 {
     public static class HttpUtility
     {
+        [ExcelFunction(Category = "HttpUtility", Description = "Sends a GET request to the specified URI and returns the response.", HelpTopic = "Sends a GET request to the specified URI and returns the response.")]
+        public static object HTTPGET(
+[ExcelArgument("uri", Name = "uri", Description = "The URI to send the GET request to.")] string uri)
+        {
+            try
+            {
+                string functionName = nameof(HTTPGET);
+                object[] parameters = new object[] { uri };
+
+                return AsyncTaskUtil.RunTask<object>(functionName, parameters, async () =>
+                {
+                    using (HttpClient httpClient = new HttpClient())
+                    {
+                        httpClient.DefaultRequestHeaders.Add("User-Agent", "ExcelHttpClient/0.0");
+                        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri);
+                        HttpResponseMessage response = await httpClient.SendAsync(request);
+
+                        string responseText = "";
+                        using (StreamReader reader = new StreamReader(await response.Content.ReadAsStreamAsync()))
+                        {
+                            responseText = reader.ReadToEnd();
+                            return responseText;
+                        }
+                    }
+                });
+            }
+            catch
+            {
+                return ExcelDna.Integration.ExcelError.ExcelErrorNA;
+            }
+        }
+
         [ExcelFunction(Category = "HttpUtility", Description = "Changes the extension of a path string.")]
         public static object PARSEQUERYSTRING(
     [ExcelArgument("query", Name = "query", Description = "The query string to parse.")] string query,
