@@ -27,6 +27,9 @@ namespace ExcelFunctions.AI
                 {
                     //The actual asyncronous block of code to execute.
                     IChatClient _chatClient = ContainerOperations.Container.GetRequiredService<IChatClient>();
+                    RateLimitingHandler rateLimitingHandler = ContainerOperations.Container.GetRequiredService<RateLimitingHandler>();
+
+                    await rateLimitingHandler.EnforceRateLimitAsync(CancellationToken.None);
                     ChatMessage chatMessage = new ChatMessage(ChatRole.User, message);
                     ChatResponse response = await _chatClient.GetResponseAsync(message);
 

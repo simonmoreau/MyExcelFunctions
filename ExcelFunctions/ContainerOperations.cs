@@ -5,6 +5,7 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OllamaSharp;
 using Serilog;
 using Serilog.Extensions.Logging;
 using System.ClientModel;
@@ -65,6 +66,20 @@ namespace ExcelFunctions
 
         public static IServiceCollection AddAIServices(this IServiceCollection services, IConfiguration configuration)
         {
+            OllamaSettings? ollamaSettings = configuration.GetSection(nameof(OllamaSettings)).Get<OllamaSettings>();
+
+            //if (ollamaSettings != null)
+            //{
+            //    Uri ollamaEndpoint = new Uri(ollamaSettings.Endpoint);
+            //    string modelId = ollamaSettings.ModelId;
+            //    IChatClient ollama = new OllamaApiClient(ollamaEndpoint)
+            //    {
+            //        SelectedModel = modelId
+            //    };
+            //    services.AddChatClient(ollama);
+            //    return services;
+            //}
+
             AzureOpenAI? azureOpenAISettigns = configuration.GetSection(nameof(AzureOpenAI)).Get<AzureOpenAI>();
 
             string deploymentName = azureOpenAISettigns.ModelId;
@@ -88,6 +103,8 @@ namespace ExcelFunctions
             }
 
             services.AddChatClient(chatClient);
+
+            services.AddSingleton<RateLimitingHandler>();
 
             return services;
         }
