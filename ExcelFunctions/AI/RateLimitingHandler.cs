@@ -14,7 +14,7 @@ namespace ExcelFunctions.AI
 
         public RateLimitingHandler()
         {
-            _maxRequests = 8; // Maximum 8 requests
+            _maxRequests = 100; // Maximum 8 requests
             _timeWindow = TimeSpan.FromMilliseconds(60000); // Per 60000 ms (1 minute)
             _rateLimitSemaphore = new SemaphoreSlim(_maxRequests, _maxRequests);
             _windowStart = DateTime.UtcNow;
