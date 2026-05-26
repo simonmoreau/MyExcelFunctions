@@ -25,18 +25,14 @@ namespace ExcelFunctions
 
                 return AsyncTaskUtil.RunTask<object>(functionName, parameters, async () =>
                 {
-                    using (HttpClient httpClient = new HttpClient())
+                    ExcelHttpClient client = ContainerOperations.Container.GetRequiredService<ExcelHttpClient>();
+                    try
                     {
-                        httpClient.DefaultRequestHeaders.Add("User-Agent", "ExcelHttpClient/0.0");
-                        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri);
-                        HttpResponseMessage response = await httpClient.SendAsync(request);
-
-                        string responseText = "";
-                        using (StreamReader reader = new StreamReader(await response.Content.ReadAsStreamAsync()))
-                        {
-                            responseText = reader.ReadToEnd();
-                            return responseText;
-                        }
+                        return await client.Get(uri);
+                    }
+                    catch (Exception ex)
+                    {
+                        return ex.Message;
                     }
                 });
             }

@@ -1,6 +1,7 @@
 ﻿using Azure.AI.OpenAI;
 using ExcelDna.Integration;
 using ExcelFunctions.AI;
+using ExcelFunctions.Services;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +11,7 @@ using OpenAI;
 using Serilog;
 using Serilog.Extensions.Logging;
 using System.ClientModel;
+using System.Net;
 using System.Windows.Input;
 
 namespace ExcelFunctions
@@ -49,6 +51,18 @@ namespace ExcelFunctions
 
             // AI
             container.AddAIServices(configuration);
+
+            // HttpClient
+            container.AddHttpClient<ExcelHttpClient>(client =>
+            {
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Add("User-Agent", "ExcelHttpClient/0.0");
+            })
+                .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+            {
+                AutomaticDecompression = DecompressionMethods.GZip,
+                MaxConnectionsPerServer = 20
+            });
 
             return container.BuildServiceProvider();
         }
