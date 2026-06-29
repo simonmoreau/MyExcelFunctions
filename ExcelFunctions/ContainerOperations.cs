@@ -56,12 +56,13 @@ namespace ExcelFunctions
             container.AddHttpClient<ExcelHttpClient>(client =>
             {
                 client.DefaultRequestHeaders.Accept.Clear();
+                client.Timeout = Timeout.InfiniteTimeSpan;
                 client.DefaultRequestHeaders.Add("User-Agent", "ExcelHttpClient/0.0");
             })
                 .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
             {
                 AutomaticDecompression = DecompressionMethods.GZip,
-                MaxConnectionsPerServer = 20
+                MaxConnectionsPerServer = 200
             });
 
             return container.BuildServiceProvider();
